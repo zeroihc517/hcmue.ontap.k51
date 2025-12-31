@@ -8,187 +8,185 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-/* ===== RESET & BODY ===== */
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: url('https://khoinguonsangtao.vn/wp-content/uploads/2022/09/hinh-nen-galaxy-1.jpg')
-              no-repeat center center fixed;
-  background-size: cover;
-  color: #222;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+*{box-sizing:border-box}
+
+/* ===== BODY ===== */
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:
+    radial-gradient(circle at top,rgba(255,215,0,.25),transparent 40%),
+    linear-gradient(180deg,#7a0000,#2b0000);
+  color:#fff;
+  min-height:100vh;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
-/* ===== TITLE ===== */
-h1 {
-  margin-top: 40px;
-  margin-bottom: 30px;
-  font-size: 2.6rem;
-  font-weight: 800;
-  color: #fff;
-  text-align: center;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 12px rgba(0,0,0,0.5);
+/* ===== PHÁO HOA CANVAS ===== */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
 }
 
-/* ===== TABLE LAYOUT ===== */
-.tables-wrapper {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  gap: 40px;
-  padding: 0 20px;
-  flex-wrap: wrap;
+/* ===== HEADER ===== */
+.header{
+  margin-top:30px;
+  text-align:center;
+  z-index:2;
 }
 
-.table-block {
-  flex: 1 1 420px;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.badge{
+  display:inline-block;
+  padding:10px 34px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ffd700,#ff9f1c);
+  color:#7a0000;
+  font-weight:800;
+  letter-spacing:2px;
+  box-shadow:0 0 25px rgba(255,215,0,.9);
+  animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+  from{box-shadow:0 0 12px rgba(255,215,0,.6)}
+  to{box-shadow:0 0 35px rgba(255,215,0,1)}
+}
+
+h1{
+  margin:25px 15px 40px;
+  font-size:3rem;
+  font-weight:800;
+  text-shadow:
+    0 0 15px rgba(255,215,0,.6),
+    0 8px 30px rgba(0,0,0,.7);
+}
+
+h1 span{
+  display:block;
+  font-size:1.2rem;
+  font-weight:600;
+  opacity:.9;
+}
+
+/* ===== TABLES ===== */
+.tables-wrapper{
+  width:100%;
+  max-width:1200px;
+  display:flex;
+  gap:45px;
+  padding:0 22px;
+  justify-content:center;
+  flex-wrap:wrap;
+  z-index:2;
+}
+
+.table-block{
+  flex:1 1 420px;
+  max-width:520px;
 }
 
 /* ===== TABLE TITLE ===== */
-.table-title {
-  margin-bottom: 15px;
-  font-size: 1.8rem;
-  font-weight: 700;
-  padding: 12px 28px;
-  color: #fff;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  letter-spacing: 0.5px;
+.table-title{
+  text-align:center;
+  font-size:1.9rem;
+  font-weight:700;
+  margin-bottom:14px;
+  padding:14px 30px;
+  border-radius:18px;
+  background:linear-gradient(180deg,#ffcc00,#ff9f1c);
+  color:#7a0000;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
 }
 
 /* ===== TABLE ===== */
-table {
-  width: 100%;
-  height: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  background:rgba(255,255,255,.95);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 20px 45px rgba(0,0,0,.6);
 }
 
-/* ===== TABLE HEADER ===== */
-th {
-  padding: 18px 12px;
-  background: rgba(0,150,255,0.75);
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-align: center;
+th{
+  padding:18px 14px;
+  background:linear-gradient(90deg,#b30000,#ff3b3b);
+  color:#fff;
+  font-size:1.2rem;
+  letter-spacing:1px;
 }
 
-/* ===== TABLE BODY ===== */
-td {
-  padding: 18px 14px;
-  background: rgba(255,255,255,0.9);
-  font-size: 1.15rem;
-  font-weight: 500;
-  text-align: center;
-  transition: all 0.3s ease;
+td{
+  padding:18px 14px;
+  font-size:1.1rem;
+  color:#111;
+  text-align:center;
+  transition:.35s;
 }
 
-tr {
-  cursor: pointer;
-  transition: all 0.35s ease;
-}
-
-tr:hover td {
-  background: rgba(255,255,255,1);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: inset 0 0 0 9999px rgba(255,255,255,0.15);
+tr:hover td{
+  background:#fff3cd;
+  transform:scale(1.02);
 }
 
 /* ===== LINK ===== */
-a {
-  color: #0072ff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
+a{
+  color:#b30000;
+  font-weight:600;
+  text-decoration:none;
 }
 
-a:hover {
-  color: #004fc4;
-  text-shadow: 0 0 6px rgba(0,114,255,0.6);
+a:hover{
+  color:#ff0000;
+  text-shadow:0 0 6px rgba(255,0,0,.5);
 }
 
 /* ===== FOOTER ===== */
-.footer {
-  margin: 40px 0 25px;
-  font-size: 1rem;
-  color: #fff;
-  opacity: 0.9;
-  letter-spacing: 0.5px;
+.footer{
+  margin:45px 0 25px;
+  font-size:1rem;
+  opacity:.9;
+  z-index:2;
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
-    margin-top: 30px;
-  }
-
-  .table-title {
-    font-size: 1.5rem;
-    padding: 10px 22px;
-  }
-
-  th, td {
-    font-size: 1.05rem;
-    padding: 14px 10px;
-  }
+@media(max-width:768px){
+  h1{font-size:2.3rem}
 }
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  .table-title {
-    font-size: 1.3rem;
-  }
-
-  th, td {
-    font-size: 0.95rem;
-    padding: 12px 8px;
-  }
+@media(max-width:480px){
+  h1{font-size:1.9rem}
+  th,td{font-size:.95rem}
 }
 </style>
 </head>
 
 <body>
 
-<h1>Trường Đại học Sư phạm TP.HCM - TOÁN K51</h1>
+<canvas id="fireworks"></canvas>
+
+<div class="header">
+  <div class="badge">🎆 HAPPY NEW YEAR 2026 🎆</div>
+  <h1>
+    Trường Đại học Sư phạm TP.HCM
+    <span>TOÁN K51</span>
+  </h1>
+</div>
 
 <div class="tables-wrapper">
 
-  <!-- ===== BẢNG 1 ===== -->
-  <div class="table-block">
-    <div class="table-title">Pháp luật đại cương</div>
-    <table>
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Liên kết</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>01</td><td><a href="PLDC/Chuong1.html">CHƯƠNG 1. LÝ LUẬN CHUNG VỀ NHÀ NƯỚC</a></td></tr>
+<!-- ===== BẢNG 1 ===== -->
+<div class="table-block">
+  <div class="table-title">Pháp luật đại cương</div>
+  <table>
+    <thead><tr><th>STT</th><th>Liên kết</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td><a href="PLDC/Chuong1.html">CHƯƠNG 1. LÝ LUẬN CHUNG VỀ NHÀ NƯỚC</a></td></tr>
         <tr><td>02</td><td><a href="PLDC/Chuong2.html">CHƯƠNG 2. LÝ LUẬN CHUNG VỀ PHÁP LUẬT</a></td></tr>
         <tr><td>03</td><td><a href="PLDC/Chuong3.html">CHƯƠNG 3. LUẬT HIẾN PHÁP</a></td></tr>
         <tr><td>04</td><td><a href="PLDC/Chuong4.html">CHƯƠNG 4. LUẬT DÂN SỰ VÀ TỐ TỤNG DÂN SỰ</a></td></tr>
@@ -196,22 +194,17 @@ a:hover {
         <tr><td>06</td><td><a href="PLDC/Chuong6.html">CHƯƠNG 6. LUẬT LAO ĐỘNG</a></td></tr>
         <tr><td>07</td><td><a href="PLDC/Chuong7.html">CHƯƠNG 7. LUẬT HÌNH SỰ VÀ TỐ TỤNG HÌNH SỰ</a></td></tr>
         <tr><td>08</td><td><a href="PLDC/Chuong8.html">CHƯƠNG 8. LUẬT HÀNH CHÍNH VÀ TỐ TỤNG HÀNH CHÍNH</a></td></tr>
-      </tbody>
-    </table>
-  </div>
+    </tbody>
+  </table>
+</div>
 
-  <!-- ===== BẢNG 2 ===== -->
-  <div class="table-block">
-    <div class="table-title">ĐỀ ÔN TẬP</div>
-    <table>
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Liên kết</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>01</td><td><a href="https://drive.google.com/file/d/1Gt2iDD-hLaY_c1nsT2Ob5EXIJr69j6A-/view?usp=sharing">Giáo trình PLĐC</a></td></tr>
+<!-- ===== BẢNG 2 ===== -->
+<div class="table-block">
+  <div class="table-title">ĐỀ ÔN TẬP</div>
+  <table>
+    <thead><tr><th>STT</th><th>Liên kết</th></tr></thead>
+    <tbody>
+     <tr><td>01</td><td><a href="https://drive.google.com/file/d/1Gt2iDD-hLaY_c1nsT2Ob5EXIJr69j6A-/view?usp=sharing">Giáo trình PLĐC</a></td></tr>
 		  <tr><td>02</td><td><a href="https://docs.google.com/document/d/1CQsctqr2MSM1B7RPMjT3jCZ8i23lJbyuT77JG3wRPso/edit?usp=sharingl">TAKE NƠTE PLĐC</a></td></tr>
 		   <tr><td>03</td><td><a href="https://baitaptracnghiem.com/danh-sach-bai-tap/phap-luat-dai-cuong-dai-hoc">https://baitaptracnghiem</a></td></tr>
 		  <tr><td>04</td><td><a href="https://drive.google.com/file/d/1ik1n9-vnzq6ENe_4Lj3jIyW0DUl7qT_1/view?usp=drive_link">200 câu hỏi trắc nghiệm</a></td></tr>
@@ -220,13 +213,69 @@ a:hover {
 		  <tr><td>07</td><td><a href="PLDC/De1.html">ĐỀ Cuối khóa K50</a></td></tr>
         <tr><td>08</td><td><a href="PLDC/De2.html">ĐỀ Cuối khóa K51</a></td></tr>
 	      <tr><td>09</td><td><a href="PLDC/De3.html">ĐỀ thi thử - Đang cập nhật</a></td></tr>
-      </tbody>
-    </table>
-  </div>
+    </tbody>
+  </table>
+</div>
 
 </div>
 
-<div class="footer">&copy; 2025–2026 K51</div>
+<div class="footer">© 2025–2026 • Toán K51 • Xuân An Khang 🎇</div>
+
+<!-- ===== PHÁO HOA JS ===== -->
+<script>
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+let w,h;
+function resize(){
+  w=canvas.width=window.innerWidth;
+  h=canvas.height=window.innerHeight;
+}
+resize();
+window.onresize=resize;
+
+function rand(min,max){return Math.random()*(max-min)+min}
+
+class Firework{
+  constructor(){
+    this.x=rand(100,w-100);
+    this.y=rand(80,h/2);
+    this.particles=[];
+    const colors=["#ffd700","#ff3b3b","#ff9f1c","#ffffff"];
+    for(let i=0;i<80;i++){
+      this.particles.push({
+        x:this.x,y:this.y,
+        vx:Math.cos(i)*rand(1,4),
+        vy:Math.sin(i)*rand(1,4),
+        life:rand(40,80),
+        color:colors[Math.floor(Math.random()*colors.length)]
+      })
+    }
+  }
+  draw(){
+    this.particles.forEach(p=>{
+      if(p.life>0){
+        ctx.fillStyle=p.color;
+        ctx.fillRect(p.x,p.y,2,2);
+        p.x+=p.vx;
+        p.y+=p.vy;
+        p.vy+=0.02;
+        p.life--;
+      }
+    })
+  }
+}
+
+let fireworks=[];
+setInterval(()=>fireworks.push(new Firework()),900);
+
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  fireworks.forEach(f=>f.draw());
+  fireworks=fireworks.filter(f=>f.particles.some(p=>p.life>0));
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
 
 </body>
 </html>
