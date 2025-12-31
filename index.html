@@ -196,6 +196,46 @@ a:hover{
   75%{transform:rotate(.8deg)}
   100%{transform:rotate(0)}
 }
+/* ===== ÁNH SÁNG QUÉT NỀN ===== */
+body::after{
+  content:"";
+  position:fixed;
+  inset:-50%;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255,215,0,.12) 40%,
+      transparent 55%
+    );
+  animation:lightSweep 8s linear infinite;
+  pointer-events:none;
+  z-index:1;
+}
+
+@keyframes lightSweep{
+  from{transform:translateX(-30%)}
+  to{transform:translateX(30%)}
+}
+
+/* ===== SPARKLE THEO CHUỘT ===== */
+.sparkle{
+  position:fixed;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff,#ffd700);
+  pointer-events:none;
+  animation:sparkFade .9s forwards;
+  z-index:3;
+}
+
+@keyframes sparkFade{
+  to{
+    transform:translateY(-25px) scale(0);
+    opacity:0;
+  }
+}
 
 </style>
 </head>
@@ -203,6 +243,7 @@ a:hover{
 <body>
 
 <canvas id="fireworks"></canvas>
+<canvas id="petals"></canvas>
 
 <div class="header reveal-up delay-1">
   <div class="badge">🎆 HAPPY NEW YEAR 2026 🎆</div>
@@ -311,6 +352,86 @@ function animate(){
   requestAnimationFrame(animate);
 }
 animate();
+</script>
+<script>
+/* ===== PETALS (HOA MAI / ĐÀO) ===== */
+const petalCanvas=document.getElementById("petals");
+const pctx=petalCanvas.getContext("2d");
+
+function resizePetal(){
+  petalCanvas.width=innerWidth;
+  petalCanvas.height=innerHeight;
+}
+resizePetal();
+addEventListener("resize",resizePetal);
+
+class Petal{
+  constructor(){
+    this.reset();
+  }
+  reset(){
+    this.x=Math.random()*petalCanvas.width;
+    this.y=-20;
+    this.size=rand(8,14);
+    this.speed=rand(0.6,1.6);
+    this.rot=rand(0,Math.PI*2);
+    this.spin=rand(-0.02,0.02);
+  }
+  draw(){
+    pctx.save();
+    pctx.translate(this.x,this.y);
+    pctx.rotate(this.rot);
+    pctx.fillStyle="rgba(255,200,0,.9)";
+    pctx.beginPath();
+    pctx.ellipse(0,0,this.size*.6,this.size,0,0,Math.PI*2);
+    pctx.fill();
+    pctx.restore();
+
+    this.y+=this.speed;
+    this.rot+=this.spin;
+    this.x+=Math.sin(this.rot)*0.6;
+
+    if(this.y>petalCanvas.height+30) this.reset();
+  }
+}
+
+let petals=[];
+for(let i=0;i<40;i++) petals.push(new Petal());
+
+function animatePetals(){
+  pctx.clearRect(0,0,petalCanvas.width,petalCanvas.height);
+  petals.forEach(p=>p.draw());
+  requestAnimationFrame(animatePetals);
+}
+animatePetals();
+
+/* ===== SPARKLE THEO CHUỘT ===== */
+document.addEventListener("mousemove",e=>{
+  const s=document.createElement("div");
+  s.className="sparkle";
+  s.style.left=e.clientX+"px";
+  s.style.top=e.clientY+"px";
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),900);
+});
+
+/* ===== FIREWORK NÂNG CẤP GLOW ===== */
+const oldDraw=Firework.prototype.draw;
+Firework.prototype.draw=function(){
+  this.particles.forEach(p=>{
+    if(p.life>0){
+      ctx.shadowBlur=15;
+      ctx.shadowColor=p.color;
+      ctx.fillStyle=p.color;
+      ctx.fillRect(p.x,p.y,2.5,2.5);
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.vy+=0.015;
+      p.life--;
+    }
+  });
+  ctx.shadowBlur=0;
+};
 </script>
 
 </body>
