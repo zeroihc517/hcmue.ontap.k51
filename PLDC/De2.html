@@ -460,7 +460,298 @@ else if (qNum === 2) {
       </div>
     `;
   } 
+  else if (qNum === 3) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Trong các trường hợp sau, đâu là căn cứ loại trừ trách nhiệm pháp lý?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Chủ thể thực hiện hành vi trong tình trạng bị kích động về mặt tình thần</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Chủ thể gây thiệt hại cho xã hội do nhầm lẫn về đối tượng quyền</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Chủ thể thực hiện hành vi trái pháp luật trong tình thế cấp thiết</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Chủ thể từ chối thực hiện nghĩa vụ pháp lý vì lý do cá nhân</label>
+      </div>
+    `;
+  } 
+  else if (qNum === 4) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Hoa lợi, lợi tức phát sinh từ tài sản riêng là:</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Tài sản riêng của người có tài sản gốc</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Tài sản chung của vợ chồng</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Tài sản của người có công sức nhiều hơn</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Tài sản thuộc sở hữu chung hợp nhất theo phần</label>
+      </div>
+    `;
+  } 
 
+  else if (qNum === 5) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Một người lập di chúc để lại toàn bộ tài sản cho một người bạn thân, không cho các con ruột vì đã trên 18 tuổi. Trường hợp này:</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Di chúc đương nhiên vô hiệu.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Con ruột vẫn có quyền hưởng di sản thừa kế không phụ thuộc di chúc.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Người bạn thân đương nhiên được hưởng di sản thừa kế.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Di chúc cần công chứng mới có hiệu lực.</label>
+      </div>
+    `;
+  } else if (qNum === 6) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Hệ thống pháp luật nào không có tập quán pháp là nguồn luật chính?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Thông luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Hồi giáo.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Dân luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Tập quán pháp là nguồn chính của tất cả các hệ thống pháp luật.</label>
+      </div>
+    `;
+  } else if (qNum === 7) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Một người bị cưỡng chế thi hành án do không tự nguyện trả nợ theo bản án dân sự. Đây là biểu hiện của thuộc tính nào của pháp luật?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Tính phổ biến.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Tính bắt buộc.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Tính hệ thống.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Tính chặt chẽ về mặt hình thức.</label>
+      </div>
+    `;
+  } else if (qNum === 8) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Theo Luật Phòng, chống tham nhũng năm 2018, người có nghĩa vụ kê khai tài sản, thu nhập phải kê khai tài sản, thu nhập của mình và của..., đồng thời chịu trách nhiệm trước pháp luật về tính trung thực của bản kê khai.</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. cha mẹ ruột, vợ hoặc chồng và con chưa thành niên.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. vợ hoặc chồng, con chưa thành niên.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. con thành niên, vợ hoặc chồng.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. người thân trong gia đình có cùng hộ khẩu.</label>
+      </div>
+    `;
+  } else if (qNum === 9) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Sự kiện pháp lý không bao gồm trường hợp nào sau đây?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Hành vi hợp pháp làm phát sinh quan hệ pháp luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Hành vi vi phạm hành chính dẫn đến chế tài xử phạt.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Hành vi vi phạm đạo đức nhưng không bị pháp luật điều chỉnh.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Thiên tai làm phát sinh trách nhiệm bồi thường.</label>
+      </div>
+    `;
+  } else if (qNum === 10) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Hình thức nhà nước được xác định bởi các yếu tố nào?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Chế độ chính trị, cơ cấu tổ chức bộ máy nhà nước và chế độ quân sự.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Chế độ chính trị, hình thức cấu trúc và hình thức chính thể.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Chế độ kinh tế, tôn giáo và phân cấp hành chính.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Chế độ pháp luật, chính sách đối ngoại và hệ thống đảng phái.</label>
+      </div>
+    `;
+  } else if (qNum === 11) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Pháp luật mang tính quy phạm phổ biến có nghĩa là:</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Được áp dụng riêng cho từng đối tượng theo từng trường hợp.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Có hiệu lực trong nội bộ một cơ quan nhà nước.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Được áp dụng lặp đi lặp lại trong đời sống xã hội.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Là quy tắc xử sự chung, áp dụng cho nhiều đối tượng trong nhiều hoàn cảnh.</label>
+      </div>
+    `;
+  } else if (qNum === 12) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Một bản án hình sự sơ thẩm đã có hiệu lực pháp luật vẫn có thể bị xem xét lại theo thủ tục nào sau đây?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Giám đốc thẩm.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Tái thẩm.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Phúc thẩm.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Không vì bản án sơ thẩm có giá trị chung thẩm.</label>
+      </div>
+    `;
+  } else if (qNum === 13) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Trong các hình thức thực hiện pháp luật sau đây, hình thức nào không cần đến hành vi chủ động của chủ thể?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Thi hành pháp luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Áp dụng pháp luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Tuân thủ pháp luật.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Sử dụng pháp luật.</label>
+      </div>
+    `;
+  } else if (qNum === 14) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Hiến pháp quy định bộ máy hành chính nhà nước (Địa phương) được tổ chức như thế nào?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Ba cấp tỉnh – huyện - xã.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Hai cấp: cấp tỉnh và cấp dưới tỉnh do luật định.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Bốn cấp: Trung ương - tỉnh – huyện – xã.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Một cấp thống nhất từ Trung ương đến xã.</label>
+      </div>
+    `;
+  } else if (qNum === 15) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Theo Luật Phòng, chống tham nhũng hiện hành, cơ quan kiểm soát tài sản yêu cầu giải trình khi có biến động tăng về tài sản, thu nhập từ bao nhiêu trở lên so với lần kê khai trước đó?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. 300.000.000 đồng.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. 250.000.000 đồng.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. 200.000.000 đồng.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. 500.000.000 đồng.</label>
+      </div>
+    `;
+  } else if (qNum === 16) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Người sử dụng lao động đơn phương chấm dứt hợp đồng với người lao động đang mang thai sẽ bị xử lý như thế nào?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Không bị xử lý.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Bị phạt tiền, nhưng chấm dứt hợp đồng vẫn có hiệu lực.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Phải nhận lại người lao động.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Được chấm dứt nếu báo trước 30 ngày.</label>
+      </div>
+    `;
+  } else if (qNum === 17) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Một quy phạm pháp luật quy định: “Công dân đủ mười tám tuổi trở lên có quyền bầu cử" là loại quy phạm nào?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Quy phạm định nghĩa.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Quy phạm mệnh lệnh.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Quy phạm cấm đoán.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Quy phạm cho phép.</label>
+      </div>
+    `;
+  } else if (qNum === 18) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Luật Hôn nhân và Gia đình năm 2014 quy định về "kết hôn trái pháp luật" trong trường hợp nào sau đây?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Kết hôn đăng ký tại UBND.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Kết hôn vi phạm điều kiện kết hôn (về tuổi, tự nguyện, cấm kết hôn...).</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Cả hai bên đồng thuận nhưng không có tổ chức lễ cưới.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Đã kết hôn nhưng không sống chung.</label>
+      </div>
+    `;
+  } else if (qNum === 19) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Theo quy định tại Điều 111 Hiến pháp, Quốc hội có quyền gì trong việc tổ chức chính quyền địa phương tại đơn vị hành chính - kinh tế đặc biệt?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Chuyển các đơn vị này thành vùng lãnh thổ tự trị.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Thành lập mô hình chính quyền đặc biệt.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Giao cho Chính phủ tự quyết định mô hình hành chính đặc biệt.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Cho phép thành lập quốc hội địa phương ở các đơn vị này.</label>
+      </div>
+    `;
+  } else if (qNum === 20) {
+    html = `
+      <div class="q-head">
+        <div class="q-left">
+          <div class="qnum">${displayNum}</div>
+          <div class="qtitle">Theo quan điểm của chủ nghĩa Mác-lênin, yếu tố nào được xem là điều kiện dẫn đến sự ra đời của nhà nước?</div>
+        </div>
+        <button type="button" class="flag-btn" data-qnum="${qNum}">🚩 Gắn cờ</button>
+      </div>
+      <div class="options">
+        <label class="option"><input type="radio" name="p1q${qNum}" value="A"> A. Sự hình thành và phát triển của chế độ hôn nhân gia đình.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="B"> B. Phân chia giai cấp và sự đối kháng về lợi ích trong xã hội.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="C"> C. Sự hoàn thiện hệ thống tín ngưỡng cổ đại.</label>
+        <label class="option"><input type="radio" name="p1q${qNum}" value="D"> D. Nhu cầu tổ chức các hoạt động giao thương quốc tế.</label>
+      </div>
+    `;
+  }
  else {
     html = `
       <div class="q-head">
