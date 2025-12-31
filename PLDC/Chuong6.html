@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chương 6 PLĐC</title>
+
+  <!-- Font & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Bootstrap (layout only) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #6366f1;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .quiz-app {
+      width: 100%;
+      max-width: 820px;
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+      overflow: hidden;
+      animation: appFade 0.6s ease;
+    }
+
+    @keyframes appFade {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Header ===== */
+    .quiz-header {
+      padding: 24px 32px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+
+    .quiz-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .quiz-header p {
+      margin: 6px 0 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    /* ===== Body ===== */
+    .quiz-body {
+      padding: 32px;
+    }
+
+    /* Start screen */
+    .start-screen {
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .start-screen h2 {
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .start-screen p {
+      max-width: 600px;
+      margin: 0 auto 24px;
+      color: #4b5563;
+    }
+
+    .btn-main {
+      padding: 14px 34px;
+      border-radius: 999px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      transition: all 0.25s ease;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(79,70,229,0.35);
+    }
+
+    /* Quiz screen */
+    .quiz-screen { display: none; }
+
+    .quiz-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .progress-info {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.4s ease;
+    }
+
+    .question-card {
+      margin-top: 24px;
+      animation: slideIn 0.45s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(40px) scale(0.98); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #111827;
+    }
+
+    .options button {
+      width: 100%;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      border-radius: 14px;
+      border: 2px solid #e5e7eb;
+      background: #f9fafb;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .options button:hover {
+      background: #eef2ff;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .options button.correct {
+      background: #dcfce7;
+      border-color: var(--success);
+      color: #166534;
+    }
+
+    .options button.wrong {
+      background: #fee2e2;
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+
+    .options button.correct i,
+    .options button.wrong i {
+      font-size: 1.1rem;
+    }
+
+    .options button.disabled {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .next-btn {
+      margin-top: 16px;
+      float: right;
+      display: none;
+    }
+
+    /* Result screen */
+    .result-screen {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .result-screen h2 {
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .score {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .category-box {
+      max-width: 420px;
+      margin: 0 auto 24px;
+      text-align: left;
+      background: #f1f5f9;
+      padding: 20px;
+      border-radius: 14px;
+    }
+
+    .category-box p {
+      margin: 8px 0;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 576px) {
+      .quiz-body { padding: 24px 18px; }
+      .question-text { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-app">
+  <div class="quiz-header">
+    <h1>CHƯƠNG 6: LUẬT LAO ĐỘNG</h1>
+  </div>
+
+  <div class="quiz-body">
+
+    <!-- Start -->
+    <div class="start-screen" id="startScreen">
+      <h2>Chào mừng!</h2>
+      <p>Bài tập được trích trên VLE. Hãy đọc kỹ và chọn đáp án đúng.</p>
+      <button class="btn-main" id="startBtn">Bắt đầu làm bài</button>
+    </div>
+
+    <!-- Quiz -->
+    <div class="quiz-screen" id="quizScreen">
+      <div class="quiz-top">
+        <div class="progress-info">Câu <span id="current">1</span> / <span id="total">0</span></div>
+      </div>
+      <div class="progress mb-3">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+
+      <div class="question-card" id="questionCard">
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="options"></div>
+        <button class="btn-main next-btn" id="nextBtn">Câu tiếp theo</button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-screen" id="resultScreen">
+      <h2>Hoàn thành bài quiz 🎉</h2>
+      <div class="score" id="finalScore"></div>
+      <div class="category-box" id="categoryResult"></div>
+      <button class="btn-main" id="restartBtn">Làm lại</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    { category: 'Đọc hiểu', question: 'Vì sao chú bé chăn cừu lại nói dối là có sói?', options: ['Muốn trêu đùa mọi người', 'Thực sự thấy sói', 'Muốn được khen'], answer: 'Muốn trêu đùa mọi người' },
+    { category: 'Đọc hiểu', question: 'Vì sao không ai đến cứu khi sói đến thật?', options: ['Không nghe thấy', 'Mọi người nghĩ chú bé nói dối', 'Quá xa'], answer: 'Mọi người nghĩ chú bé nói dối' },
+    { category: 'Kể chuyện', question: 'Bài học rút ra từ câu chuyện là gì?', options: ['Phải chăm chỉ', 'Không được nói dối', 'Phải dũng cảm'], answer: 'Không được nói dối' },
+    { category: 'Viết', question: 'Chọn vần đúng: "nói d..."', options: ['oi', 'ôi', 'ối'], answer: 'ối' }
+  ];
+
+  let currentIndex = 0;
+  let score = 0;
+  let categoryScore = {};
+
+  const startScreen = document.getElementById('startScreen');
+  const quizScreen = document.getElementById('quizScreen');
+  const resultScreen = document.getElementById('resultScreen');
+
+  const questionText = document.getElementById('questionText');
+  const optionsEl = document.getElementById('options');
+  const currentEl = document.getElementById('current');
+  const totalEl = document.getElementById('total');
+  const progressBar = document.getElementById('progressBar');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const finalScore = document.getElementById('finalScore');
+  const categoryResult = document.getElementById('categoryResult');
+
+  totalEl.textContent = quizData.length;
+
+  document.getElementById('startBtn').onclick = startQuiz;
+  document.getElementById('restartBtn').onclick = startQuiz;
+  nextBtn.onclick = nextQuestion;
+
+  function startQuiz() {
+    currentIndex = 0;
+    score = 0;
+    categoryScore = {};
+    startScreen.style.display = 'none';
+    resultScreen.style.display = 'none';
+    quizScreen.style.display = 'block';
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = quizData[currentIndex];
+    questionText.textContent = q.question;
+    optionsEl.innerHTML = '';
+    currentEl.textContent = currentIndex + 1;
+    progressBar.style.width = ((currentIndex) / quizData.length) * 100 + '%';
+
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.innerHTML = `<span>${opt}</span>`;
+      btn.onclick = () => selectAnswer(btn, opt, q.answer, q.category);
+      optionsEl.appendChild(btn);
+    });
+
+    nextBtn.style.display = 'none';
+  }
+
+  function selectAnswer(btn, selected, correct, category) {
+    document.querySelectorAll('.options button').forEach(b => b.classList.add('disabled'));
+
+    if (selected === correct) {
+      btn.classList.add('correct');
+      btn.innerHTML += ' <i class="fa-solid fa-check"></i>';
+      score++;
+      categoryScore[category] = (categoryScore[category] || 0) + 1;
+    } else {
+      btn.classList.add('wrong');
+      btn.innerHTML += ' <i class="fa-solid fa-xmark"></i>';
+      document.querySelectorAll('.options button').forEach(b => {
+        if (b.textContent.trim() === correct) {
+          b.classList.add('correct');
+          b.innerHTML += ' <i class="fa-solid fa-check"></i>';
+        }
+      });
+    }
+
+    nextBtn.style.display = 'inline-block';
+  }
+
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < quizData.length) {
+      loadQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    quizScreen.style.display = 'none';
+    resultScreen.style.display = 'block';
+    progressBar.style.width = '100%';
+
+    finalScore.textContent = `${score} / ${quizData.length}`;
+    categoryResult.innerHTML = '';
+
+    for (const cat in categoryScore) {
+      categoryResult.innerHTML += `<p><strong>${cat}:</strong> ${categoryScore[cat]} câu đúng</p>`;
+    }
+  }
+</script>
+
+</body>
+</html>
