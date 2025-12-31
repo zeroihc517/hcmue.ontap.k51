@@ -163,6 +163,40 @@ a:hover{
   h1{font-size:1.9rem}
   th,td{font-size:.95rem}
 }
+/* ===== HIỆU ỨNG TẾT: BAY LÊN + TỎA SÁNG ===== */
+.reveal-up{
+  opacity:0;
+  transform:translateY(60px) scale(.96);
+  filter:blur(4px);
+  animation:riseUp 1.25s cubic-bezier(.25,.8,.25,1) forwards;
+}
+
+.delay-1{animation-delay:.2s}
+.delay-2{animation-delay:.45s}
+.delay-3{animation-delay:.7s}
+.delay-4{animation-delay:.95s}
+
+@keyframes riseUp{
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    filter:blur(0);
+  }
+}
+
+/* Lắc nhẹ ngày Tết khi hover */
+.table-title:hover{
+  animation:tetShake .6s;
+}
+
+@keyframes tetShake{
+  0%{transform:rotate(0)}
+  25%{transform:rotate(1.2deg)}
+  50%{transform:rotate(-1.2deg)}
+  75%{transform:rotate(.8deg)}
+  100%{transform:rotate(0)}
+}
+
 </style>
 </head>
 
@@ -170,7 +204,7 @@ a:hover{
 
 <canvas id="fireworks"></canvas>
 
-<div class="header">
+<div class="header reveal-up delay-1">
   <div class="badge">🎆 HAPPY NEW YEAR 2026 🎆</div>
   <h1>
     Trường Đại học Sư phạm TP.HCM
@@ -178,10 +212,12 @@ a:hover{
   </h1>
 </div>
 
+
 <div class="tables-wrapper">
 
 <!-- ===== BẢNG 1 ===== -->
-<div class="table-block">
+<div class="table-block reveal-up delay-2">
+
   <div class="table-title">Pháp luật đại cương</div>
   <table>
     <thead><tr><th>STT</th><th>Liên kết</th></tr></thead>
@@ -199,7 +235,7 @@ a:hover{
 </div>
 
 <!-- ===== BẢNG 2 ===== -->
-<div class="table-block">
+<div class="table-block reveal-up delay-3">
   <div class="table-title">ĐỀ ÔN TẬP</div>
   <table>
     <thead><tr><th>STT</th><th>Liên kết</th></tr></thead>
