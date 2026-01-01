@@ -236,6 +236,13 @@ body::after{
     opacity:0;
   }
 }
+/* ===== CHẶN COPY – BÔI ĐEN ===== */
+body{
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 </style>
 </head>
@@ -433,6 +440,36 @@ Firework.prototype.draw=function(){
   });
   ctx.shadowBlur=0;
 };
+</script>
+<script>
+/* ===== CHẶN COPY / CHUỘT PHẢI / PHÍM TẮT ===== */
+
+// Chặn chuột phải
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+// Chặn kéo thả
+document.addEventListener("dragstart", e => e.preventDefault());
+
+// Chặn chọn văn bản
+document.addEventListener("selectstart", e => e.preventDefault());
+
+// Chặn phím tắt phổ biến
+document.addEventListener("keydown", function(e){
+  // Ctrl + C / U / S / A / P
+  if (e.ctrlKey && ["c","u","s","a","p"].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+  }
+
+  // F12 (DevTools)
+  if (e.key === "F12") {
+    e.preventDefault();
+  }
+
+  // Ctrl + Shift + I / J
+  if (e.ctrlKey && e.shiftKey && ["i","j"].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+  }
+});
 </script>
 
 </body>
