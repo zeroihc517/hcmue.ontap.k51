@@ -1,122 +1,187 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-<!--  <meta http-equiv="refresh" content="0;url=https://test.upcoder.xyz"> -->
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bảo trì hệ thống</title>
-  <style>
-    :root{
-      --bg: #0f172a;        /* slate-900 */
-      --card: #111827;      /* gray-900 */
-      --text: #e5e7eb;      /* gray-200 */
-      --muted:#9ca3af;      /* gray-400 */
-      --accent:#38bdf8;     /* sky-400 */
-      --ring:#1f2937;       /* gray-800 */
-    }
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg:#f1f5f9;       /* slate-100 */
-        --card:#ffffff;
-        --text:#0f172a;
-        --muted:#475569;
-        --accent:#0284c7;   /* sky-600 */
-        --ring:#e5e7eb;
-      }
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      background: radial-gradient(1200px 800px at 50% -10%, rgba(56,189,248,.18), transparent 60%) , var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      display:flex; align-items:center; justify-content:center;
-      padding: 24px;
-    }
-    .card{
-      width: 100%;
-      max-width: 620px;
-      background: var(--card);
-      border: 1px solid var(--ring);
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      padding: 28px 28px 32px;
-      text-align: center;
-    }
-    .icon{
-      width: 84px; height: 84px; margin: 4px auto 14px;
-      display:block;
-      filter: drop-shadow(0 6px 16px rgba(2,132,199,.25));
-    }
-    .gear{ transform-origin: 50% 50%; animation: slowspin 8s linear infinite; }
-    @keyframes slowspin{ to{ transform: rotate(360deg);} }
-    h1{
-      font-size: clamp(22px, 3.4vw, 28px);
-      margin: 0 0 8px;
-      letter-spacing: .2px;
-    }
-    p{
-      color: var(--muted);
-      margin: 0;
-      font-size: clamp(14px, 2.4vw, 16px);
-      line-height: 1.6;
-    }
-    .tips{
-      margin-top: 18px;
-      font-size: 13px;
-      color: var(--muted);
-      opacity: .9;
-    }
-    .btn{
-      margin-top: 18px;
-      display:inline-block;
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--ring);
-      background: linear-gradient(180deg, rgba(56,189,248,.12), rgba(56,189,248,.06));
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .btn:focus-visible{ outline: 3px solid var(--accent); outline-offset: 3px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Thi Trực Tuyến</title>
+    <link rel="stylesheet" href="style.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <main class="card" role="main" aria-labelledby="maintitle">
-    <!-- Biểu tượng bảo trì: cờ lê + bánh răng -->
-    <svg class="icon" viewBox="0 0 128 128" aria-hidden="true">
-      <!-- Vòng nền -->
-      <circle cx="64" cy="64" r="48" fill="rgba(56,189,248,.10)" stroke="var(--accent)" stroke-width="2"/>
-      <!-- Bánh răng -->
-      <g class="gear" fill="none" stroke="var(--accent)" stroke-width="4">
-        <circle cx="64" cy="64" r="16"/>
-        <g>
-          <path d="M64 34 v-10"/>
-          <path d="M64 104 v10"/>
-          <path d="M34 64 h-10"/>
-          <path d="M104 64 h10"/>
-          <path d="M44 44 l-7 -7"/>
-          <path d="M91 91 l7 7"/>
-          <path d="M44 84 l-7 7"/>
-          <path d="M91 37 l7 -7"/>
-        </g>
-      </g>
-      <!-- Cờ lê -->
-      <path d="M28 90c-2 2-2 5 0 7l3 3c2 2 5 2 7 0l30-30c4 2 9 1 12-2 4-4 4-10 0-14-3-3-8-4-12-2l-30 30z"
-            fill="currentColor" style="color: var(--text); opacity:.9"/>
-    </svg>
-
-    <h1 id="maintitle">Hệ thống đang bảo trì</h1>
-    <p>Mời bạn quay lại sau. Chúng tôi đang cập nhật để phục vụ bạn tốt hơn.</p>
-
-    <!-- Tùy chọn: nút thử tải lại -->
-    <a class="btn" href="" onclick="location.reload(); return false;" aria-label="Tải lại trang">↻ Thử tải lại</a>
-
-    <div class="tips" role="note">
-      Nếu cần gấp, vui lòng liên hệ bộ phận hỗ trợ hoặc thử lại sau vài phút.
+<!-- MÀN HÌNH ĐĂNG NHẬP -->
+<div id="login-screen" class="screen active">
+    <div class="login-card">
+        <h2>ĐĂNG NHẬP LÀM BÀI THI</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <label>Họ và tên *</label>
+                <input type="text" id="login-fullname" placeholder="Nhập họ và tên" required>
+            </div>
+            <div class="input-group">
+                <label>Số báo danh *</label>
+                <input type="text" id="login-sbd" placeholder="Nhập số báo danh" required>
+            </div>
+            <div class="input-group">
+                <label>Đợt thi *</label>
+                <select>
+                    <option>Kỳ thi tốt nghiệp THPT 2026</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
     </div>
-  </main>
+</div>
+
+<!-- MÀN HÌNH LÀM BÀI -->
+<div id="exam-screen" class="screen">
+    <header class="exam-header">
+        <div class="user-info">
+            <!-- Thêm ID để hiển thị tên và SBD -->
+            <p><strong id="display-fullname">Nguyễn Văn A</strong></p>
+            <span>SBD: <span id="display-sbd">01000071</span> | Môn: TOÁN | Ngày thi: <span id="display-date">--/--/----</span>
+        </div>
+            <div class="status-section">
+                <div class="timer">⏰ <span id="timer">49:33</span></div>
+                <div class="connection-status">🟢 Đang kết nối</div>
+                <button class="submit-btn" onclick="confirmSubmit()">NỘP BÀI</button>
+            </div>
+        </header>
+
+<!-- Tìm đến class="action-bar" và thêm các nút mới -->
+<div class="action-bar">
+    <!-- Cụm bên trái: Trống hoặc có thể để nút Gắn cờ ở đây -->
+    <div class="action-left">
+        <button id="btn-flag" class="btn-nav" onclick="toggleFlag()">🚩 Gắn cờ</button>
+    </div>
+
+    <!-- Cụm ở giữa: Điều hướng chính[cite: 2] -->
+    <div class="action-center">
+        <button class="btn-nav" onclick="prevQuestion()">Quay lại</button>
+        <button class="btn-nav btn-primary" onclick="nextQuestion()">Tiếp theo</button>
+    </div>
+
+    <!-- Cụm bên phải: Thống kê và các icon chức năng -->
+    <div class="action-right">
+        <div class="answer-count">Số câu đã trả lời: <span id="answered-count">0/22</span></div>
+        <button class="btn-save">Lưu</button>
+        <div class="icon-tools">
+            <button class="icon-btn" onclick="changeZoom(0.1)">➕</button>
+            <button class="icon-btn" onclick="changeZoom(-0.1)">➖</button>
+            <button class="icon-btn" onclick="location.reload()">🔄</button>
+        </div>
+    </div>
+</div>
+
+<main class="exam-container" id="main-container">
+    <!-- Bảng nội dung đề bài (Chỉ hiện ở Phần 2) -->
+    <section class="reading-panel" id="side-reading-panel" style="display: none;">
+        <div class="panel-header">ĐỀ BÀI</div>
+        <div class="reading-content" id="shared-reading-content">
+                    <p>The concept of project farming, where farmers come together to collaborate on large-scale agricultural projects, has gained significant traction...</p>
+                </div>
+            </section>
+<!-- Cập nhật nội dung trong section class="question-panel" -->
+<section class="question-panel" id="main-question-panel">
+    <div class="panel-header">PHẦN TRẢ LỜI</div>
+    <div class="content-scroll" id="questions-container">
+        
+        <!-- PHẦN 1: TRẮC NGHIỆM ABCD (12 CÂU) -->
+        <div class="part-section">
+            <h3>PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn (12 câu)</h3>
+            <p><em>Mỗi câu trả lời đúng thí sinh được 0,25 điểm.</em></p>
+            <div id="part-1-container">
+                <!-- Ví dụ Câu 1 -->
+                <div class="question-item" data-q="1">
+                    <p><strong>Câu 1.</strong> Nội dung câu hỏi trắc nghiệm...</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="A"> A. Phương án A</label>
+                        <label><input type="radio" name="q1" value="B"> B. Phương án B</label>
+                        <label><input type="radio" name="q1" value="C"> C. Phương án C</label>
+                        <label><input type="radio" name="q1" value="D"> D. Phương án D</label>
+                    </div>
+                </div>
+                <!-- Lặp lại tương tự đến Câu 12 -->
+            </div>
+        </div>
+
+        <!-- PHẦN 2: ĐÚNG SAI (4 CÂU) -->
+        <div class="part-section">
+            <h3>PHẦN II. Câu trắc nghiệm đúng sai (4 câu)</h3>
+            <p><em>Điểm tối đa của 01 câu hỏi là 1 điểm (4 ý đúng: 1đ, 3 ý: 0.5đ, 2 ý: 0.25đ, 1 ý: 0.1đ).</em></p>
+            <div id="part-2-container">
+                <!-- Ví dụ Câu 13 (Câu 1 của phần 2) -->
+                <div class="question-item true-false-item" data-q="13">
+                    <p><strong>Câu 13.</strong> Cho giả thiết bài toán nằm ở bên trái panel...</p>
+                    <table class="tf-table">
+                        <tr>
+                            <th>Lệnh/Ý hỏi</th>
+                            <th>Đúng</th>
+                            <th>Sai</th>
+                        </tr>
+                        <tr>
+                            <td>a) Ý hỏi thứ nhất</td>
+                            <td><input type="radio" name="q13a" value="D"></td>
+                            <td><input type="radio" name="q13a" value="S"></td>
+                        </tr>
+                        <tr>
+                            <td>b) Ý hỏi thứ hai</td>
+                            <td><input type="radio" name="q13b" value="D"></td>
+                            <td><input type="radio" name="q13b" value="S"></td>
+                        </tr>
+                        <tr>
+                            <td>c) Ý hỏi thứ ba</td>
+                            <td><input type="radio" name="q13c" value="D"></td>
+                            <td><input type="radio" name="q13c" value="S"></td>
+                        </tr>
+                        <tr>
+                            <td>d) Ý hỏi thứ tư</td>
+                            <td><input type="radio" name="q13d" value="D"></td>
+                            <td><input type="radio" name="q13d" value="S"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN 3: TRẢ LỜI NGẮN (6 CÂU) -->
+        <div class="part-section">
+            <h3>PHẦN III. Câu trắc nghiệm trả lời ngắn (6 câu)</h3>
+            <p><em>Mỗi câu trả lời đúng thí sinh được 0,5 điểm.</em></p>
+            <div id="part-3-container">
+                <div class="question-item" data-q="17">
+                    <p><strong>Câu 17.</strong> Kết quả của bài toán là bao nhiêu?</p>
+                    <input type="text" class="short-answer-input" name="q17" placeholder="Nhập đáp án...">
+                </div>
+                <!-- Lặp lại tương tự đến Câu 22 -->
+            </div>
+        </div>
+
+    </div>
+</section>
+                <!-- Có thể thêm nhiều câu hỏi ở đây -->
+            </section>
+        </main>
+
+        <footer class="question-nav">
+            <div class="nav-dots" id="navDots"></div>
+        </footer>
+    </div>
+
+<!-- MÀN HÌNH KẾT QUẢ -->
+<div id="result-screen" class="screen">
+    <div class="result-card">
+        <h3>Kết quả thi</h3>
+        <div class="result-content">
+            <p class="success-msg">Bạn đã nộp bài thi thành công!</p>
+            <div class="result-stats">
+                <p>Số câu đã trả lời: <span class="highlight" id="res-done">0/0</span></p>
+                <p>Số điểm đạt được: <span class="highlight" id="res-score">0.0/10</span></p>
+            </div>
+            <button class="btn-finish" onclick="location.reload()">Hoàn thành</button>
+        </div>
+    </div>
+</div>
+
+    <script src="script.js"></script>
 </body>
 </html>
