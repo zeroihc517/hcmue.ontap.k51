@@ -46,51 +46,62 @@ function renderQuestion(index) {
     const container = document.getElementById('questions-container');
     const readingPanel = document.getElementById('side-reading-panel');
     const questionPanel = document.getElementById('main-question-panel');
-    if (!container) return;
+
+    // Tìm dữ liệu câu hỏi từ file questions.js
+    const qData = examData.find(q => q.id === index);
+    if (!qData || !container) return;
 
     container.innerHTML = '';
     const isFlagged = flaggedQuestions.has(index) ? 'flagged' : '';
 
-    if (index <= 12) {
-        if(readingPanel) readingPanel.style.display = 'none';
-        if(questionPanel) questionPanel.className = 'full-width';
+    if (qData.part === 1) {
+        // Hiển thị Phần I
+        readingPanel.style.display = 'none';
+        questionPanel.className = 'full-width';
         container.innerHTML = `
             <div class="question-item ${isFlagged}">
-                <p><strong>Câu ${index}.</strong> Nội dung câu hỏi trắc nghiệm Phần I...</p>
+                <p><strong>Câu ${index}.</strong> ${qData.question}</p>
                 <div class="options">
-                    ${['A', 'B', 'C', 'D'].map(opt => {
+                    ${['A', 'B', 'C', 'D'].map((opt, i) => {
                         const isChecked = userAnswers[`q${index}`] === opt ? 'checked' : '';
-                        return `<label><input type="radio" name="q${index}" value="${opt}" ${isChecked}> ${opt}. Phương án ${opt}</label>`;
+                        return `<label><input type="radio" name="q${index}" value="${opt}" ${isChecked}> ${opt}. ${qData.options[i]}</label>`;
                     }).join('')}
                 </div>
             </div>`;
-    } else if (index <= 16) {
-        if(readingPanel) readingPanel.style.display = 'block';
-        if(questionPanel) questionPanel.className = 'split-width';
+    } else if (qData.part === 2) {
+        // Hiển thị Phần II
+        readingPanel.style.display = 'block';
+        document.getElementById('shared-reading-content').innerHTML = qData.reading;
+        questionPanel.className = 'split-width';
         container.innerHTML = `
             <div class="question-item true-false-item ${isFlagged}">
-                <p><strong>Câu ${index}.</strong> Chọn Đúng/Sai cho các ý sau:</p>
+                <p><strong>Câu ${index}.</strong> ${qData.question}</p>
                 <table class="tf-table">
                     <tr><th>Lệnh/Ý hỏi</th><th>Đúng</th><th>Sai</th></tr>
-                    ${['a', 'b', 'c', 'd'].map(sub => {
-                        const val = userAnswers[`q${index}${sub}`];
+                    ${qData.subQuestions.map(sub => {
+                        const val = userAnswers[`q${index}${sub.id}`];
                         return `<tr>
-                            <td>Ý ${sub}) Nội dung ý hỏi...</td>
-                            <td><input type="radio" name="q${index}${sub}" value="D" ${val === 'D' ? 'checked' : ''}></td>
-                            <td><input type="radio" name="q${index}${sub}" value="S" ${val === 'S' ? 'checked' : ''}></td>
+                            <td>${sub.id}) ${sub.text}</td>
+                            <td><input type="radio" name="q${index}${sub.id}" value="D" ${val === 'D' ? 'checked' : ''}></td>
+                            <td><input type="radio" name="q${index}${sub.id}" value="S" ${val === 'S' ? 'checked' : ''}></td>
                         </tr>`;
                     }).join('')}
                 </table>
             </div>`;
     } else {
-        if(readingPanel) readingPanel.style.display = 'none';
-        if(questionPanel) questionPanel.className = 'full-width';
+        // Hiển thị Phần III
+        readingPanel.style.display = 'none';
+        questionPanel.className = 'full-width';
         const savedValue = userAnswers[`q${index}`] || '';
         container.innerHTML = `
             <div class="question-item ${isFlagged}">
-                <p><strong>Câu ${index}.</strong> Nhập câu trả lời ngắn (Phần III):</p>
+                <p><strong>Câu ${index}.</strong> ${qData.question}</p>
                 <input type="text" class="short-answer-input" name="q${index}" value="${savedValue}" placeholder="Nhập đáp án...">
             </div>`;
+    }
+    if (window.MathJax) {
+        // Lệnh này bắt MathJax quét lại màn hình để vẽ công thức mới
+        window.MathJax.typesetPromise(); 
     }
     updateActiveDot(index);
 }
@@ -99,33 +110,27 @@ function renderQuestion(index) {
 function calculateScore() {
     let totalScore = 0;
 
-    // PHẦN I: Trắc nghiệm (12 câu, mỗi câu 0.25đ)
-    for (let i = 1; i <= 12; i++) {
-        if (userAnswers[`q${i}`] === answerKey[`q${i}`]) totalScore += 0.25;
-    }
-
-    // PHẦN II: Đúng Sai (4 câu)
-    for (let i = 13; i <= 16; i++) {
-        let correctSub = 0;
-        ['a', 'b', 'c', 'd'].forEach(sub => {
-            if (userAnswers[`q${i}${sub}`] === answerKey[`q${i}${sub}`]) correctSub++;
-        });
-        if (correctSub === 4) totalScore += 1.0;
-        else if (correctSub === 3) totalScore += 0.5;
-        else if (correctSub === 2) totalScore += 0.25;
-        else if (correctSub === 1) totalScore += 0.1;
-    }
-
-    // PHẦN III: Trả lời ngắn (6 câu, mỗi câu 0.5đ)
-    for (let i = 17; i <= 22; i++) {
-        const userVal = (userAnswers[`q${i}`] || "").trim().toLowerCase();
-        const correctVal = (answerKey[`q${i}`] || "").trim().toLowerCase();
-        if (userVal === correctVal && correctVal !== "") totalScore += 0.5;
-    }
+    examData.forEach(q => {
+        if (q.part === 1) {
+            if (userAnswers[`q${q.id}`] === q.correct) totalScore += 0.25;
+        } else if (q.part === 2) {
+            let correctSub = 0;
+            q.subQuestions.forEach(sub => {
+                if (userAnswers[`q${q.id}${sub.id}`] === sub.correct) correctSub++;
+            });
+            if (correctSub === 4) totalScore += 1.0;
+            else if (correctSub === 3) totalScore += 0.5;
+            else if (correctSub === 2) totalScore += 0.25;
+            else if (correctSub === 1) totalScore += 0.1;
+        } else if (q.part === 3) {
+            const userVal = (userAnswers[`q${q.id}`] || "").trim().toLowerCase();
+            const correctVal = q.correct.toLowerCase();
+            if (userVal === correctVal) totalScore += 0.5;
+        }
+    });
 
     return totalScore.toFixed(2);
 }
-
 // --- 5. HÀM NỘP BÀI ---
 function executeSubmission() {
     if (countdown) clearInterval(countdown);
