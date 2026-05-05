@@ -123,9 +123,25 @@ function changeZoom(delta) {
 
 // --- 6. KHỞI TẠO HỆ THỐNG KHI TRANG TẢI XONG ---
 document.addEventListener('DOMContentLoaded', () => {
+function showExamScreen(fullName, sbd) {
+        const now = new Date();
+        const currentDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+        document.getElementById('display-fullname').innerText = fullName;
+        document.getElementById('display-sbd').innerText = sbd;
+        document.getElementById('display-date').innerText = currentDate;
+
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('exam-screen').classList.add('active');
+        document.getElementById('exam-screen').style.display = 'flex';
+
+        renderQuestion(1);
+    }
     // A. Bộ đếm thời gian
     let timeLeft = 90* 60 + 00;
-    const timerElement = document.getElementById('timer');
+  
+const timerElement = document.getElementById('timer');
     const countdown = setInterval(() => {
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
@@ -136,7 +152,37 @@ if (timeLeft <= 0) {
     }
     timeLeft--;
     }, 1000);
+const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+    const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
 
+    if (savedAnswers) {
+        Object.assign(userAnswers, JSON.parse(localStorage.getItem('userAnswers')));
+    }
+
+    // Nếu đã có thông tin đăng nhập, vào thẳng phòng thi
+    if (savedUser) {
+        showExamScreen(savedUser.fullName, savedUser.sbd);
+        // Cập nhật lại trạng thái các câu đã làm trên thanh điều hướng (dots)
+        Object.keys(userAnswers).forEach(key => {
+            const qNum = key.match(/\d+/)[0];
+            const dot = document.getElementById(`dot-${qNum}`);
+            if (dot) dot.classList.add('done');
+        });
+        updateAnswerCount();
+	}
+    // --- 3. XỬ LÝ ĐĂNG NHẬP MỚI ---
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault(); 
+            const fullName = document.getElementById('login-fullname').value;
+            const sbd = document.getElementById('login-sbd').value;
+
+            // Lưu trạng thái đăng nhập
+            localStorage.setItem('currentUser', JSON.stringify({fullName, sbd}));
+            showExamScreen(fullName, sbd);
+        });
+    }
     // B. Tạo các nút điều hướng (dot)
     const navDots = document.getElementById('navDots');
     if (navDots) {
@@ -156,7 +202,6 @@ if (timeLeft <= 0) {
     }
 
     // C. Xử lý Đăng nhập
-    const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault(); 
@@ -183,18 +228,23 @@ if (timeLeft <= 0) {
     if (questionsContainer) {
         questionsContainer.addEventListener('change', (e) => {
             if (e.target.type === 'radio') {
-                userAnswers[e.target.name] = e.target.value;
-                const qNum = e.target.name.match(/\d+/)[0];
-                document.getElementById(`dot-${qNum}`).classList.add('done');
-                updateAnswerCount();
+                // Trong phần addEventListener cho 'change' và 'input'
+userAnswers[e.target.name] = e.target.value;
+localStorage.setItem('userAnswers', JSON.stringify(userAnswers)); // Thêm dòng này
+            
+            const qNum = e.target.name.match(/\d+/)[0];
+            document.getElementById(`dot-${qNum}`).classList.add('done');
+            updateAnswerCount();
             }
         });
 
         questionsContainer.addEventListener('input', (e) => {
             if (e.target.type === 'text') {
                 userAnswers[e.target.name] = e.target.value;
-                const qNum = e.target.name.match(/\d+/)[0];
-                const dot = document.getElementById(`dot-${qNum}`);
+               localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            
+            const qNum = e.target.name.match(/\d+/)[0];
+            const dot = document.getElementById(`dot-${qNum}`);
                 if (e.target.value.trim() !== "") {
                     dot.classList.add('done');
                 } else {
@@ -204,6 +254,7 @@ if (timeLeft <= 0) {
             }
         });
     }
+
 
     // E. Nút Quay lại / Tiếp theo
     document.querySelector('.btn-primary').addEventListener('click', () => {
@@ -369,12 +420,7 @@ function autoSubmit() {
     executeSubmission();
 }
 
-// Hàm xác nhận nộp bài thủ công[cite: 2]
-function confirmSubmit() {
-    if (confirm("Bạn có chắc chắn muốn nộp bài?")) {
-        executeSubmission();
-    }
-}
+
 
 // Hàm thực hiện các thủ tục nộp bài và tính điểm[cite: 2]
 function executeSubmission() {
@@ -401,4 +447,22 @@ function executeSubmission() {
     document.getElementById('res-score').innerText = `${finalScore}/10`;
     
     window.scrollTo(0, 0);
+}
+// Chống nhấn lộn F5 hoặc thoát trang vô ý
+window.onbeforeunload = function() {
+    return "Dữ liệu bài làm của bạn sẽ bị mất nếu không được lưu. Bạn có chắc muốn thoát?";
+};
+
+// Xóa dữ liệu trong kho sau khi đã nộp bài thành công
+function clearStorage() {
+    localStorage.removeItem('userAnswers');
+}
+// Thêm hàm này vào script.js
+function finishExam() {
+    // Xóa sạch toàn bộ dữ liệu trong kho lưu trữ của trình duyệt
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('currentUser');
+    
+    // Tải lại trang để về màn hình đăng nhập
+    location.reload();
 }
