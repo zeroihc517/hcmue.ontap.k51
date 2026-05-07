@@ -58,6 +58,7 @@ function renderQuestion(index) {
         // Hiển thị Phần I
         readingPanel.style.display = 'none';
         questionPanel.className = 'full-width';
+	
         container.innerHTML = `
             <div class="question-item ${isFlagged}">
                 <p><strong>Câu ${index}.</strong> ${qData.question}</p>
@@ -93,9 +94,23 @@ function renderQuestion(index) {
         readingPanel.style.display = 'none';
         questionPanel.className = 'full-width';
         const savedValue = userAnswers[`q${index}`] || '';
-        container.innerHTML = `
+	// Tìm đến đoạn này trong file script.js và thay thế:
+const imgHtml = qData.image ? `
+    <div style="
+        text-align: center; 
+        margin-bottom: 15px; 
+        max-height: 400px; 
+        overflow-y: auto; 
+        border: 1px solid #eee; 
+        border-radius: 8px;
+        padding: 5px;
+    ">
+        <img src="${qData.image}" style="max-width: 100%; height: auto; border-radius: 4px;">
+    </div>` : '';
+container.innerHTML = `
             <div class="question-item ${isFlagged}">
                 <p><strong>Câu ${index}.</strong> ${qData.question}</p>
+                ${imgHtml} 
                 <input type="text" class="short-answer-input" name="q${index}" value="${savedValue}" placeholder="Nhập đáp án...">
             </div>`;
     }
@@ -235,15 +250,17 @@ function prevQuestion() {
 }
 
 // D. Lệnh Phóng to / Thu nhỏ
+// script.js
 function changeZoom(delta) {
     currentZoom += delta;
-    if (currentZoom < 0.7) currentZoom = 0.7; // Giới hạn nhỏ nhất
-    if (currentZoom > 1.5) currentZoom = 1.5; // Giới hạn lớn nhất
+    if (currentZoom < 0.7) currentZoom = 0.7;
+    if (currentZoom > 1.5) currentZoom = 1.5;
     
+    // Tìm container tổng chứa cả 2 phần
     const mainContainer = document.getElementById('main-container');
     if (mainContainer) {
-        // Áp dụng zoom cho toàn bộ nội dung bài làm
-        mainContainer.style.fontSize = `${currentZoom}rem`;
+        // Ép font-size cho container cha, 2 con sẽ tự nhảy theo tỉ lệ đều[cite: 3, 4]
+        mainContainer.style.setProperty('font-size', `${currentZoom}rem`, 'important');
     }
 }
 document.addEventListener('DOMContentLoaded', () => {

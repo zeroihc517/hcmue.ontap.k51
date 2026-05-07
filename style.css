@@ -89,12 +89,40 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 .btn-primary { background: #3b82f6; color: white; border: none; }
 
 .exam-container { display: flex; flex: 1; overflow: hidden; background: white; margin: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
-.reading-panel { width: 40%; padding: 20px; border-right: 1px solid var(--border-color); overflow-y: auto; background: #fff; line-height: 1.5; font-size: 0.95rem; }
+/* Trong style.css */
+.reading-panel {
+    width: 50% !important; 
+    padding: 20px;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    background: #fff;
+    line-height: 1.5;
+}
+
+.reading-content {
+    font-size: inherit; /* Đảm bảo nội dung bên trong kế thừa trực tiếp[cite: 4] */
+}
 .question-panel { width: 60%; padding: 20px; overflow-y: auto; }
 
 .options label { display: block; margin: 10px 0; padding: 10px; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
-.options label:hover { background: #f1f5f9; }
 
+/* Đảm bảo vùng chứa nội dung câu hỏi có thể cuộn được */
+#question-content {
+    flex: 1;
+    overflow-y: auto; /* Thêm thanh cuộn dọc khi nội dung quá dài */
+    padding: 20px;
+}
+
+/* Khống chế kích thước ảnh khi zoom */
+.question-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    /* Giới hạn chiều cao ảnh để không chiếm hết màn hình */
+    max-height: 50vh; 
+    object-fit: contain;
+}
 /* Điều hướng */
 .question-nav { background: #f1f5f9; padding: 10px; border-top: 1px solid var(--border-color); }
 .nav-dots { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
@@ -149,15 +177,39 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
     padding: 15px;
 }
 /* Làm nổi bật câu hỏi đang làm */
+/* Trong style.css */
 .question-item {
-    padding: 15px;
+    padding: 25px; /* Tăng từ 15px lên 25px để nội dung lùi vào trong */
+    margin-bottom: 20px;
     border-left: 4px solid transparent;
     transition: all 0.3s;
+    box-sizing: border-box; /* Đảm bảo padding không làm tăng chiều rộng tổng thể */
+}
+/* Tìm và sửa đoạn này trong style.css */
+.question-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    /* Giảm từ 50vh xuống khoảng 40vh để chừa chỗ cho câu hỏi và input */
+    max-height: 40vh; 
+    object-fit: contain;
+}
+#questions-container {
+    height: 100%;
+    overflow-y: auto; /* Ép hiện thanh cuộn dọc khi cần */
+    padding-right: 20px; /* Chừa khoảng trống cho thanh cuộn */
 }
 
+/* Đảm bảo panel bao ngoài không bị tràn */
+.question-panel {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px); /* Trừ đi chiều cao của header và action-bar */
+}
 .question-item:hover {
-    border-left-color: var(--primary-blue);
-    background: #f0f7ff;
+   border-left-color: transparent;
+    background: transparent;
 }
 
 /* Style cho input trả lời ngắn */
@@ -217,5 +269,14 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 
 /* Để nội dung có thể phóng to trơn tru */
 .exam-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: white;
+    margin: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    /* Font size gốc để zoom */
+    font-size: 1.1rem; 
     transition: font-size 0.2s ease-in-out;
 }
