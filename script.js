@@ -162,20 +162,28 @@ function executeSubmission() {
         resultScreen.classList.add('active');
     }
 
+    // 1. Tính toán điểm số từ bài làm của thí sinh
     const finalScore = calculateScore();
+    
+    // 2. Đếm số câu thí sinh đã tích chọn
     const answeredSet = new Set();
     Object.keys(userAnswers).forEach(key => {
         const qNum = key.match(/\d+/)[0];
         answeredSet.add(qNum);
     });
+    const soCauDaLam = `${answeredSet.size}/22`;
 
-    if (document.getElementById('res-done')) document.getElementById('res-done').innerText = `${answeredSet.size}/22`;
+    // 3. Hiển thị kết quả lên màn hình cho thí sinh xem
+    if (document.getElementById('res-done')) document.getElementById('res-done').innerText = soCauDaLam;
     if (document.getElementById('res-score')) document.getElementById('res-score').innerText = `${finalScore}/10`;
 
-    window.scrollTo(0, 0);
-    localStorage.removeItem('userAnswers');
-}
+    // 4. KÍCH HOẠT GỬI ĐIỂM (Phải gửi đi trước khi dọn dẹp bộ nhớ)
+    dayDiemLenGoogleSheet(soCauDaLam, finalScore);
 
+    // 5. Cuộn màn hình lên đầu và dọn dẹp bộ nhớ tạm
+    window.scrollTo(0, 0);
+    localStorage.removeItem('userAnswers'); // Xóa đáp án trắc nghiệm lưu tạm sau khi đã nộp thành công
+}
 function confirmSubmit() {
     if (confirm("Bạn có chắc chắn muốn nộp bài?")) {
         executeSubmission();
@@ -338,4 +346,46 @@ function updateAnswerCount() {
     const answeredSet = new Set();
     Object.keys(userAnswers).forEach(key => answeredSet.add(key.match(/\d+/)[0]));
     if (document.getElementById('answered-count')) document.getElementById('answered-count').innerText = `${answeredSet.size}/22`;
+}
+// 1. Dán đường link Web App Apps Script mới của bạn vào đây
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRV_tWiX57TXOxZs6IsEzsQ7gwe0wPC3RBRKiEziG4ElqvRjZym5uG-GGKeKGdA4iu/exec";
+
+// 2. Hàm tự động đóng gói dữ liệu và đẩy lên Google Sheet
+function dayDiemLenGoogleSheet(soCauDaLam, diemSo) {
+    // Lấy thông tin thí sinh từ localStorage
+    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    const hoTen = savedUser ? savedUser.fullName : "Thí sinh ẩn danh";
+    const sbd = savedUser ? savedUser.sbd : "Không có";
+    const dotThi = "Kỳ thi tốt nghiệp THPT 2026";
+
+    // Tiến hành chuyển đổi object bài làm userAnswers thành chuỗi văn bản gọn gàng
+    // Ví dụ kết quả ra chuỗi dạng: {"q1":"A", "q13a":"D", "q17":"22,6"}
+    const userAnswersText = JSON.stringify(userAnswers);
+
+    // Đóng gói gói dữ liệu đẩy lên máy chủ
+    const payload = {
+        username: sbd,
+        studentName: hoTen,
+        examName: dotThi,
+        score: `${diemSo}/10`,
+        extraData: soCauDaLam,
+        userAnswersText: userAnswersText // Đính kèm chi tiết bài làm vào payload
+    };
+
+    // Thực hiện gửi dữ liệu bằng Fetch API
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        console.log("Đã đồng bộ kết quả thi và chi tiết bài làm lên Google Sheet!");
+    })
+    .catch(error => {
+        console.error("Lỗi kết nối máy chủ lưu điểm:", error);
+    });
 }
