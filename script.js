@@ -1,5 +1,5 @@
 // --- 1. BIẾN TOÀN CỤC & CẤU HÌNH API ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRV_tWiX57TXOxZs6IsEzsQ7gwe0wPC3RBRKiEziG4ElqvRjZym5uG-GGKeKGdA4iu/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4AgHlkzQjVnQ1tjJ2hkdZS3Xa3_bU8Ym2pAEiYWDZoSRlFcHjSlk7UUOh8OoJo6AaiA/exec";
 let examData = [];
 let currentQuestionIndex = 1;
 const userAnswers = {}; 
