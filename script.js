@@ -214,9 +214,25 @@ function calculateScore() {
             else if (correctSub === 2) totalScore += 0.25;
             else if (correctSub === 1) totalScore += 0.1;
         } else if (q.part === 3) {
-            const userVal = (userAnswers[`q${q.id}`] || "").trim().toLowerCase();
-            const correctVal = q.correct.toLowerCase();
-            if (userVal === correctVal) totalScore += 0.5;
+            let userVal = (userAnswers[`q${q.id}`] || "").toString().trim().toLowerCase();
+            let correctVal = q.correct.toString().trim().toLowerCase();
+
+            // Xử lý thông minh cho số thập phân: Đổi hết phẩy (,) thành chấm (.)
+            let userNumStr = userVal.replace(/,/g, '.');
+            let correctNumStr = correctVal.replace(/,/g, '.');
+
+            // Kiểm tra: Nếu cả đáp án của sheet và của học sinh đều là số
+            if (!isNaN(userNumStr) && !isNaN(correctNumStr) && userNumStr !== "" && correctNumStr !== "") {
+                // Ép kiểu về số thập phân để so sánh (ví dụ: 3.140 == 3.14 sẽ ra True)
+                if (parseFloat(userNumStr) === parseFloat(correctNumStr)) {
+                    totalScore += 0.5;
+                }
+            } else {
+                // Nếu không phải là số (VD đáp án là chữ "vô nghiệm" hoặc phân số "1/2") thì so sánh chữ
+                if (userVal === correctVal) {
+                    totalScore += 0.5;
+                }
+            }
         }
     });
     return totalScore.toFixed(2);
