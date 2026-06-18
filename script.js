@@ -1,67 +1,123 @@
-// --- 1. BIẾN TOÀN CỤC ---
+// --- 1. BIẾN TOÀN CỤC & CẤU HÌNH API ---
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRV_tWiX57TXOxZs6IsEzsQ7gwe0wPC3RBRKiEziG4ElqvRjZym5uG-GGKeKGdA4iu/exec";
+let examData = [];
 let currentQuestionIndex = 1;
 const userAnswers = {}; 
 const flaggedQuestions = new Set(); 
 let currentZoom = 1.0; 
 let countdown;
 
-const answerKey = {
-    "q1": "A", "q2": "A", "q3": "A", "q4": "A", "q5": "A", "q6": "A",
-    "q7": "A", "q8": "A", "q9": "A", "q10": "A", "q11": "A", "q12": "A",
-    "q13a": "D", "q13b": "D", "q13c": "D", "q13d": "D",
-    "q14a": "D", "q14b": "D", "q14c": "D", "q14d": "D",
-    "q15a": "D", "q15b": "D", "q15c": "D", "q15d": "D",
-    "q16a": "D", "q16b": "D", "q16c": "D", "q16d": "D",
-    "q17": "10", "q18": "10", "q19": "10", "q20": "10", "q21": "10", "q22": "10"
-};
+// --- 2. KHỞI TẠO HỆ THỐNG TRÊN GITHUB PAGES ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Gọi API để lấy đề thi từ Google Sheets
+    fetch(GOOGLE_SCRIPT_URL)
+        .then(response => response.json())
+        .then(data => {
+            examData = data;
+            document.getElementById('init-loading').classList.remove('active');
+            document.getElementById('login-screen').classList.add('active');
+            initSystem();
+        })
+        .catch(error => {
+            console.error("Lỗi tải đề:", error);
+            alert("Không thể kết nối đến ngân hàng câu hỏi. Vui lòng thử tải lại trang!");
+        });
+});
 
-// --- 2. HÀM CHUYỂN ĐỔI MÀN HÌNH ---
+function initSystem() {
+    // Xử lý Form đăng nhập
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('login-fullname').value.trim();
+        const sbd = document.getElementById('login-sbd').value.trim();
+        localStorage.setItem('currentUser', JSON.stringify({fullName, sbd}));
+        showExamScreen(fullName, sbd);
+    });
+
+    // Khởi tạo Navigation Dots
+    const navDots = document.getElementById('navDots');
+    for (let i = 1; i <= 22; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.id = `dot-${i}`;
+        dot.innerText = i;
+        dot.onclick = () => { currentQuestionIndex = i; renderQuestion(i); };
+        navDots.appendChild(dot);
+    }
+
+    // Lắng nghe sự kiện chọn đáp án
+    const container = document.getElementById('questions-container');
+    container.addEventListener('change', (e) => {
+        if (e.target.type === 'radio') {
+            userAnswers[e.target.name] = e.target.value;
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`).classList.add('done');
+            updateAnswerCount();
+        }
+    });
+    container.addEventListener('input', (e) => {
+        if (e.target.type === 'text') {
+            userAnswers[e.target.name] = e.target.value;
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            const dot = document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`);
+            e.target.value.trim() !== "" ? dot.classList.add('done') : dot.classList.remove('done');
+            updateAnswerCount();
+        }
+    });
+
+    // Phục hồi phiên làm bài nếu lỡ F5
+    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+    const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
+    if (savedAnswers) Object.assign(userAnswers, savedAnswers);
+    if (savedUser) {
+        showExamScreen(savedUser.fullName, savedUser.sbd);
+        setTimeout(() => {
+            Object.keys(userAnswers).forEach(key => {
+                const qNum = key.match(/\d+/)[0];
+                const dot = document.getElementById(`dot-${qNum}`);
+                if (dot) dot.classList.add('done');
+            });
+            updateAnswerCount();
+        }, 100);
+    }
+}
+
+// --- 3. LOGIC HIỂN THỊ UI ---
 function showExamScreen(fullName, sbd) {
-    const loginScreen = document.getElementById('login-screen');
-    const examScreen = document.getElementById('exam-screen');
-
-    if (loginScreen) {
-        loginScreen.style.setProperty('display', 'none', 'important');
-        loginScreen.classList.remove('active');
-    }
-
-    if (examScreen) {
-        examScreen.style.setProperty('display', 'flex', 'important');
-        examScreen.classList.add('active');
-    }
+    document.getElementById('login-screen').classList.remove('active');
+    document.getElementById('exam-screen').classList.add('active');
 
     const now = new Date();
-    const currentDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-    
-    if(document.getElementById('display-fullname')) document.getElementById('display-fullname').innerText = fullName;
-    if(document.getElementById('display-sbd')) document.getElementById('display-sbd').innerText = sbd;
-    if(document.getElementById('display-date')) document.getElementById('display-date').innerText = currentDate;
+    document.getElementById('display-fullname').innerText = fullName;
+    document.getElementById('display-sbd').innerText = sbd;
+    document.getElementById('display-date').innerText = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
     renderQuestion(1);
     startTimer(90 * 60);
 }
 
-// --- 3. HÀM HIỂN THỊ CÂU HỎI ---
 function renderQuestion(index) {
     const container = document.getElementById('questions-container');
     const readingPanel = document.getElementById('side-reading-panel');
     const questionPanel = document.getElementById('main-question-panel');
+    const titlePanel = document.getElementById('panel-title');
 
-    // Tìm dữ liệu câu hỏi từ file questions.js
     const qData = examData.find(q => q.id === index);
-    if (!qData || !container) return;
+    if (!qData) return;
 
-    container.innerHTML = '';
     const isFlagged = flaggedQuestions.has(index) ? 'flagged' : '';
+    const imgHtml = qData.image ? `<img src="${qData.image}" alt="Hình ảnh câu hỏi">` : '';
 
     if (qData.part === 1) {
-        // Hiển thị Phần I
         readingPanel.style.display = 'none';
-        questionPanel.className = 'full-width';
-	
+        questionPanel.className = 'question-panel full-width';
+        titlePanel.innerText = "PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn";
+        
         container.innerHTML = `
             <div class="question-item ${isFlagged}">
                 <p><strong>Câu ${index}.</strong> ${qData.question}</p>
+                ${imgHtml}
                 <div class="options">
                     ${['A', 'B', 'C', 'D'].map((opt, i) => {
                         const isChecked = userAnswers[`q${index}`] === opt ? 'checked' : '';
@@ -70,12 +126,13 @@ function renderQuestion(index) {
                 </div>
             </div>`;
     } else if (qData.part === 2) {
-        // Hiển thị Phần II
         readingPanel.style.display = 'block';
-        document.getElementById('shared-reading-content').innerHTML = qData.reading;
-        questionPanel.className = 'split-width';
+        document.getElementById('shared-reading-content').innerHTML = qData.reading + imgHtml;
+        questionPanel.className = 'question-panel split-width';
+        titlePanel.innerText = "PHẦN II. Câu trắc nghiệm đúng sai";
+
         container.innerHTML = `
-            <div class="question-item true-false-item ${isFlagged}">
+            <div class="question-item ${isFlagged}">
                 <p><strong>Câu ${index}.</strong> ${qData.question}</p>
                 <table class="tf-table">
                     <tr><th>Lệnh/Ý hỏi</th><th>Đúng</th><th>Sai</th></tr>
@@ -90,41 +147,60 @@ function renderQuestion(index) {
                 </table>
             </div>`;
     } else {
-        // Hiển thị Phần III
         readingPanel.style.display = 'none';
-        questionPanel.className = 'full-width';
+        questionPanel.className = 'question-panel full-width';
+        titlePanel.innerText = "PHẦN III. Câu trắc nghiệm trả lời ngắn";
+        
         const savedValue = userAnswers[`q${index}`] || '';
-	// Tìm đến đoạn này trong file script.js và thay thế:
-const imgHtml = qData.image ? `
-    <div style="
-        text-align: center; 
-        margin-bottom: 15px; 
-        max-height: 400px; 
-        overflow-y: auto; 
-        border: 1px solid #eee; 
-        border-radius: 8px;
-        padding: 5px;
-    ">
-        <img src="${qData.image}" style="max-width: 100%; height: auto; border-radius: 4px;">
-    </div>` : '';
-container.innerHTML = `
+        container.innerHTML = `
             <div class="question-item ${isFlagged}">
                 <p><strong>Câu ${index}.</strong> ${qData.question}</p>
                 ${imgHtml} 
                 <input type="text" class="short-answer-input" name="q${index}" value="${savedValue}" placeholder="Nhập đáp án...">
             </div>`;
     }
-    if (window.MathJax) {
-        // Lệnh này bắt MathJax quét lại màn hình để vẽ công thức mới
-        window.MathJax.typesetPromise(); 
-    }
+
+    if (window.MathJax) setTimeout(() => window.MathJax.typesetPromise(), 50);
     updateActiveDot(index);
 }
 
-// --- 4. HÀM TÍNH ĐIỂM (QUAN TRỌNG - PHẢI CÓ) ---
+// --- 4. HÀM ĐIỀU HƯỚNG & ZOOM ---
+function toggleFlag() {
+    const dot = document.getElementById(`dot-${currentQuestionIndex}`);
+    if (flaggedQuestions.has(currentQuestionIndex)) {
+        flaggedQuestions.delete(currentQuestionIndex);
+        dot.classList.remove('flagged');
+    } else {
+        flaggedQuestions.add(currentQuestionIndex);
+        dot.classList.add('flagged');
+    }
+    renderQuestion(currentQuestionIndex);
+}
+
+function nextQuestion() { if (currentQuestionIndex < 22) { currentQuestionIndex++; renderQuestion(currentQuestionIndex); } }
+function prevQuestion() { if (currentQuestionIndex > 1) { currentQuestionIndex--; renderQuestion(currentQuestionIndex); } }
+
+function changeZoom(delta) {
+    currentZoom += delta;
+    if (currentZoom < 0.8) currentZoom = 0.8;
+    if (currentZoom > 1.5) currentZoom = 1.5;
+    document.getElementById('main-container').style.setProperty('font-size', `${currentZoom}rem`, 'important');
+}
+
+function updateActiveDot(index) {
+    document.querySelectorAll('.dot').forEach(dot => dot.classList.remove('active'));
+    document.getElementById(`dot-${index}`).classList.add('active');
+}
+
+function updateAnswerCount() {
+    const answeredSet = new Set();
+    Object.keys(userAnswers).forEach(key => answeredSet.add(key.match(/\d+/)[0]));
+    document.getElementById('answered-count').innerText = `${answeredSet.size}/22`;
+}
+
+// --- 5. TÍNH ĐIỂM VÀ NỘP BÀI THI ---
 function calculateScore() {
     let totalScore = 0;
-
     examData.forEach(q => {
         if (q.part === 1) {
             if (userAnswers[`q${q.id}`] === q.correct) totalScore += 0.25;
@@ -143,249 +219,85 @@ function calculateScore() {
             if (userVal === correctVal) totalScore += 0.5;
         }
     });
-
     return totalScore.toFixed(2);
 }
-// --- 5. HÀM NỘP BÀI ---
-function executeSubmission() {
-    if (countdown) clearInterval(countdown);
 
-    const examScreen = document.getElementById('exam-screen');
-    if (examScreen) {
-        examScreen.style.setProperty('display', 'none', 'important');
-        examScreen.classList.remove('active');
-    }
-
-    const resultScreen = document.getElementById('result-screen');
-    if (resultScreen) {
-        resultScreen.style.setProperty('display', 'flex', 'important');
-        resultScreen.classList.add('active');
-    }
-
-    // 1. Tính toán điểm số từ bài làm của thí sinh
-    const finalScore = calculateScore();
-    
-    // 2. Đếm số câu thí sinh đã tích chọn
-    const answeredSet = new Set();
-    Object.keys(userAnswers).forEach(key => {
-        const qNum = key.match(/\d+/)[0];
-        answeredSet.add(qNum);
-    });
-    const soCauDaLam = `${answeredSet.size}/22`;
-
-    // 3. Hiển thị kết quả lên màn hình cho thí sinh xem
-    if (document.getElementById('res-done')) document.getElementById('res-done').innerText = soCauDaLam;
-    if (document.getElementById('res-score')) document.getElementById('res-score').innerText = `${finalScore}/10`;
-
-    // 4. KÍCH HOẠT GỬI ĐIỂM (Phải gửi đi trước khi dọn dẹp bộ nhớ)
-    dayDiemLenGoogleSheet(soCauDaLam, finalScore);
-
-    // 5. Cuộn màn hình lên đầu và dọn dẹp bộ nhớ tạm
-    window.scrollTo(0, 0);
-    localStorage.removeItem('userAnswers'); // Xóa đáp án trắc nghiệm lưu tạm sau khi đã nộp thành công
-}
-function confirmSubmit() {
-    if (confirm("Bạn có chắc chắn muốn nộp bài?")) {
-        executeSubmission();
-    }
-}
-
-function autoSubmit() {
-    alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
-    executeSubmission();
-}
-
-function finishExam() {
-    localStorage.clear();
-    location.reload();
-}
-
-// --- 6. KHỞI TẠO VÀ SỰ KIỆN ---
 function startTimer(duration) {
-    // Kiểm tra xem có thời gian đã lưu từ trước không
     const savedTime = localStorage.getItem('examTimeLeft');
     let timeLeft = savedTime ? parseInt(savedTime) : duration;
-    
     const timerElement = document.getElementById('timer');
+    
     if (countdown) clearInterval(countdown);
     
     countdown = setInterval(() => {
         let m = Math.floor(timeLeft / 60);
         let s = timeLeft % 60;
+        timerElement.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
         
-        if (timerElement) timerElement.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        
-        // LƯU THỜI GIAN VÀO STORAGE MỖI GIÂY
         localStorage.setItem('examTimeLeft', timeLeft);
 
         if (timeLeft <= 0) { 
             clearInterval(countdown); 
-            localStorage.removeItem('examTimeLeft'); // Xóa khi hết giờ
-            autoSubmit(); 
+            localStorage.removeItem('examTimeLeft');
+            alert("Đã hết thời gian làm bài! Hệ thống tự động thu bài.");
+            executeSubmission(); 
         }
         timeLeft--;
     }, 1000);
 }
-// --- 3. HÀM ĐIỀU HƯỚNG & ZOOM (CÁC LỆNH BẠN CẦN) ---
 
-// A. Lệnh Gắn cờ
-function toggleFlag() {
-    const dot = document.getElementById(`dot-${currentQuestionIndex}`);
-    if (flaggedQuestions.has(currentQuestionIndex)) {
-        flaggedQuestions.delete(currentQuestionIndex);
-        if (dot) dot.classList.remove('flagged');
-    } else {
-        flaggedQuestions.add(currentQuestionIndex);
-        if (dot) dot.classList.add('flagged');
-    }
-    renderQuestion(currentQuestionIndex); // Render lại để cập nhật màu câu hỏi
-}
+function confirmSubmit() { if (confirm("Bạn có chắc chắn muốn nộp bài?")) executeSubmission(); }
 
-// B. Lệnh Tiếp theo
-function nextQuestion() {
-    if (currentQuestionIndex < 22) {
-        currentQuestionIndex++;
-        renderQuestion(currentQuestionIndex);
-    }
-}
-
-// C. Lệnh Quay lại
-function prevQuestion() {
-    if (currentQuestionIndex > 1) {
-        currentQuestionIndex--;
-        renderQuestion(currentQuestionIndex);
-    }
-}
-
-// D. Lệnh Phóng to / Thu nhỏ
-// script.js
-function changeZoom(delta) {
-    currentZoom += delta;
-    if (currentZoom < 0.7) currentZoom = 0.7;
-    if (currentZoom > 1.5) currentZoom = 1.5;
+function executeSubmission() {
+    if (countdown) clearInterval(countdown);
+    document.getElementById('exam-screen').classList.remove('active');
     
-    // Tìm container tổng chứa cả 2 phần
-    const mainContainer = document.getElementById('main-container');
-    if (mainContainer) {
-        // Ép font-size cho container cha, 2 con sẽ tự nhảy theo tỉ lệ đều[cite: 3, 4]
-        mainContainer.style.setProperty('font-size', `${currentZoom}rem`, 'important');
-    }
-}
-document.addEventListener('DOMContentLoaded', () => {
-    // Đăng nhập
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const fullName = document.getElementById('login-fullname').value;
-            const sbd = document.getElementById('login-sbd').value;
-            localStorage.setItem('currentUser', JSON.stringify({fullName, sbd}));
-            showExamScreen(fullName, sbd);
-        });
-    }
-
-    // Navigation Dots
-    const navDots = document.getElementById('navDots');
-    if (navDots) {
-        for (let i = 1; i <= 22; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'dot';
-            dot.id = `dot-${i}`;
-            dot.innerText = i;
-            dot.onclick = () => { currentQuestionIndex = i; renderQuestion(i); };
-            navDots.appendChild(dot);
-        }
-    }
-
-    // Load lại trạng thái
-    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-    const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
-    if (savedAnswers) Object.assign(userAnswers, savedAnswers);
-    if (savedUser) {
-        showExamScreen(savedUser.fullName, savedUser.sbd);
-        setTimeout(() => {
-            Object.keys(userAnswers).forEach(key => {
-                const qNum = key.match(/\d+/)[0];
-                const dot = document.getElementById(`dot-${qNum}`);
-                if (dot) dot.classList.add('done');
-            });
-            updateAnswerCount();
-        }, 100);
-    }
-
-    // Lưu đáp án
-    const container = document.getElementById('questions-container');
-    if (container) {
-        container.addEventListener('change', (e) => {
-            if (e.target.type === 'radio') {
-                userAnswers[e.target.name] = e.target.value;
-                localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-                document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`).classList.add('done');
-                updateAnswerCount();
-            }
-        });
-        container.addEventListener('input', (e) => {
-            if (e.target.type === 'text') {
-                userAnswers[e.target.name] = e.target.value;
-                localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-                const dot = document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`);
-                e.target.value.trim() !== "" ? dot.classList.add('done') : dot.classList.remove('done');
-                updateAnswerCount();
-            }
-        });
-    }
-});
-
-function updateActiveDot(index) {
-    document.querySelectorAll('.dot').forEach(dot => dot.classList.remove('active'));
-    const currentDot = document.getElementById(`dot-${index}`);
-    if (currentDot) currentDot.classList.add('active');
-}
-
-function updateAnswerCount() {
+    const finalScore = calculateScore();
     const answeredSet = new Set();
     Object.keys(userAnswers).forEach(key => answeredSet.add(key.match(/\d+/)[0]));
-    if (document.getElementById('answered-count')) document.getElementById('answered-count').innerText = `${answeredSet.size}/22`;
-}
-// 1. Dán đường link Web App Apps Script mới của bạn vào đây
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRV_tWiX57TXOxZs6IsEzsQ7gwe0wPC3RBRKiEziG4ElqvRjZym5uG-GGKeKGdA4iu/exec";
+    const soCauDaLam = `${answeredSet.size}/22`;
 
-// 2. Hàm tự động đóng gói dữ liệu và đẩy lên Google Sheet
-function dayDiemLenGoogleSheet(soCauDaLam, diemSo) {
-    // Lấy thông tin thí sinh từ localStorage
     const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    const hoTen = savedUser ? savedUser.fullName : "Thí sinh ẩn danh";
-    const sbd = savedUser ? savedUser.sbd : "Không có";
-    const dotThi = "Kỳ thi tốt nghiệp THPT 2026";
-
-    // Tiến hành chuyển đổi object bài làm userAnswers thành chuỗi văn bản gọn gàng
-    // Ví dụ kết quả ra chuỗi dạng: {"q1":"A", "q13a":"D", "q17":"22,6"}
-    const userAnswersText = JSON.stringify(userAnswers);
-
-    // Đóng gói gói dữ liệu đẩy lên máy chủ
     const payload = {
-        username: sbd,
-        studentName: hoTen,
-        examName: dotThi,
-        score: `${diemSo}/10`,
+        username: savedUser ? savedUser.sbd : "000",
+        studentName: savedUser ? savedUser.fullName : "Ẩn danh",
+        examName: "Kỳ thi tốt nghiệp THPT 2026",
+        score: `${finalScore}/10`,
         extraData: soCauDaLam,
-        userAnswersText: userAnswersText // Đính kèm chi tiết bài làm vào payload
+        userAnswersText: JSON.stringify(userAnswers)
     };
 
-    // Thực hiện gửi dữ liệu bằng Fetch API
+    // Đẩy dữ liệu bằng fetch theo cấu trúc API mới
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain;charset=utf-8" } 
     })
-    .then(() => {
-        console.log("Đã đồng bộ kết quả thi và chi tiết bài làm lên Google Sheet!");
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById('result-screen').classList.add('active');
+        document.getElementById('res-done').innerText = soCauDaLam;
+        document.getElementById('res-score').innerText = `${finalScore}/10`;
+        localStorage.removeItem('userAnswers');
+        localStorage.removeItem('examTimeLeft');
     })
     .catch(error => {
-        console.error("Lỗi kết nối máy chủ lưu điểm:", error);
+        console.error("Lỗi nộp bài:", error);
+        alert("Đã xảy ra lỗi khi lưu kết quả lên máy chủ. Bạn vui lòng báo với giáo viên kiểm tra lại mạng!");
     });
+}
+
+// Hàm chuẩn SPA: Trở về màn hình đăng nhập lập tức, không reload trang
+function finishExam() {
+    localStorage.clear();
+    for (let prop in userAnswers) delete userAnswers[prop];
+    flaggedQuestions.clear();
+    currentQuestionIndex = 1;
+    document.getElementById('login-form').reset();
+    document.querySelectorAll('.dot').forEach(el => el.classList.remove('done', 'active', 'flagged'));
+    document.getElementById('answered-count').innerText = "0/22";
+
+    document.getElementById('result-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+    window.scrollTo(0, 0);
 }
