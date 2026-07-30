@@ -70,9 +70,13 @@ body {
 /* Layout Main Grid */
 .admin-main {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* Cố định cột bên trái 480px để form luôn rộng rãi, cột bên phải chiếm phần còn lại */
+    grid-template-columns: 480px 1fr; 
     gap: 24px;
     align-items: start;
+}
+.admin-main > div, .admin-card {
+    min-width: 0; 
 }
 
 .admin-card {
@@ -105,9 +109,29 @@ body {
 }
 
 .input-group {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+.input-group input, 
+.input-group select, 
+.input-group textarea {
+    width: 100%;
+    box-sizing: border-box; /* Ép kích thước nằm gọn trong thẻ cha */
+}
+
+/* SỬA LỖI Ô ĐỢT THI + NÚT BẤM BỊ DỒN */
+.input-group > div {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.input-group > div input {
+    flex: 1;
+    min-width: 0; /* Ngăn ô input đẩy bung nút bấm */
 }
 
 .input-group label {
@@ -117,6 +141,11 @@ body {
     margin-bottom: 6px;
 }
 
+@media (max-width: 1024px) {
+    .admin-main {
+        grid-template-columns: 1fr; /* Xuống hàng trên màn hình nhỏ */
+    }
+}
 .input-group input, 
 .input-group select, 
 .input-group textarea {

@@ -106,5 +106,16 @@
   };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+<script>
+// Hàm biến link Google Drive thành link ảnh hiển thị trực tiếp
+function convertDriveUrl(url) {
+    if (!url) return "";
+    const driveMatch = url.trim().match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/i);
+    if (driveMatch && driveMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    }
+    return url.trim();
+}
+</script>
 </body>
 </html>

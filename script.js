@@ -7,6 +7,28 @@ let countdown;
 let violationCount = 0;
 let isExamActive = false;
 
+// HÀM CHUYỂN LINK GOOGLE DRIVE THÀNH LINK ẢNH TRỰC TIẾP
+function convertDriveUrl(url) {
+    if (!url) return "";
+    const driveMatch = url.trim().match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]+)/i);
+    if (driveMatch && driveMatch[1]) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    }
+    return url.trim();
+}
+
+function extractImage(text) {
+    let imgUrl = "";
+    let cleanText = text || "";
+    const imgRegex = /\[img\](.*?)\[\/img\]/i;
+    const match = cleanText.toString().match(imgRegex);
+    if (match) {
+        imgUrl = convertDriveUrl(match[1]);
+        cleanText = cleanText.toString().replace(imgRegex, '').trim();
+    }
+    return { cleanText, imgUrl };
+}
+
 // --- 1. KHỞI TẠO HỆ THỐNG ---
 document.addEventListener('DOMContentLoaded', () => {
     fetch(`${GOOGLE_SCRIPT_URL}?action=getExamList`)
@@ -50,7 +72,7 @@ function initSystem() {
             name: fullName, fullName: fullName, mssv: sbd, sbd: sbd, examName: selectedExam
         }));
 
-        // BẮT BUỘC FULL SCREEN KHI BẮT ĐẦU VÀO THI
+        // KÍCH HOẠT FULL SCREEN
         requestFullscreenMode();
 
         document.getElementById('login-screen').classList.remove('active');
@@ -161,13 +183,11 @@ function requestFullscreenMode() {
 }
 
 function setupFullscreenAndAntiCheat() {
-    // Lắng nghe sự kiện Thoát Fullscreen
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 
-    // Lắng nghe sự kiện chuyển tab / ẩn trang
     document.addEventListener('visibilitychange', () => {
         if (document.hidden && isExamActive) {
             triggerViolationWarning();
@@ -241,7 +261,8 @@ function renderQuestion(index) {
     if (!qData) return;
 
     const isFlagged = flaggedQuestions.has(index) ? 'flagged' : '';
-    const imgHtml = qData.image ? `<img src="${qData.image}" alt="Hình ảnh câu hỏi">` : '';
+    const imgUrl = convertDriveUrl(qData.image);
+    const imgHtml = imgUrl ? `<img src="${imgUrl}" alt="Hình ảnh câu hỏi">` : '';
 
     if (qData.part === 1) {
         readingPanel.style.display = 'none';
@@ -336,7 +357,6 @@ function updateAnswerCount() {
     document.getElementById('answered-count').innerText = `${answeredSet.size}/${examData.length}`;
 }
 
-// MỞ MODAL XÁC NHẬN NỘP BÀI HOÀNH TRÁNG
 function confirmSubmit() {
     const answeredSet = new Set();
     Object.keys(userAnswers).forEach(key => {
@@ -353,7 +373,7 @@ function closeConfirmModal() {
     document.getElementById('confirm-modal').classList.remove('active');
 }
 
-// --- 5. TÍNH ĐIỂM VÀ THỰC THI NỘP BÀI ---
+// --- 5. TÍNH ĐIỂM VÀ NỘP BÀI ---
 function calculateScore() {
     let totalScore = 0;
     examData.forEach(q => {
@@ -408,7 +428,6 @@ function executeSubmission() {
     const studentMSSV = savedUser ? (savedUser.mssv || savedUser.sbd) : "000";
     const selectedExam = savedUser ? (savedUser.examName) : "Kỳ thi tốt nghiệp THPT 2026";
 
-    // Thoát Fullscreen khi nộp xong
     if (document.exitFullscreen) {
         document.exitFullscreen().catch(err => console.log(err));
     }

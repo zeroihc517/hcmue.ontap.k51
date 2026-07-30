@@ -277,3 +277,14 @@ function exportToCSV() {
     link.download = `Ket_Qua_Thi_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
 }
+function extractImage(text) {
+    let imgUrl = "";
+    let cleanText = text || "";
+    const imgRegex = /\[img\](.*?)\[\/img\]/i;
+    const match = cleanText.toString().match(imgRegex);
+    if (match) {
+        imgUrl = convertDriveUrl(match[1]); // Tự động convert link Drive
+        cleanText = cleanText.toString().replace(imgRegex, '').trim();
+    }
+    return { cleanText, imgUrl };
+}

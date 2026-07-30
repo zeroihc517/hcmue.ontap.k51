@@ -55,7 +55,8 @@ function loadExamSuggestions() {
 function renderPreview() {
     const part = document.getElementById('part-select').value;
     const content = document.getElementById('q-content').value || "Nội dung câu hỏi sẽ hiển thị ở đây...";
-    const imgUrl = document.getElementById('q-image').value.trim();
+   const rawImgUrl = document.getElementById('q-image').value;
+const imgUrl = convertDriveUrl(rawImgUrl);
     const previewBox = document.getElementById('preview-box');
 
     let imgHtml = imgUrl ? `<img src="${imgUrl}" alt="Ảnh xem trước" style="max-width:100%; margin:10px 0;">` : '';
