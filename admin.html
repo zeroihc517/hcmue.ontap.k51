@@ -137,6 +137,7 @@
             <select id="filter-admin-exam" class="bank-filter-select" onchange="loadBankList()">
                 <option value="">-- Tất cả đợt thi --</option>
             </select>
+<button class="btn-primary-admin" onclick="generateAndExportRandomExamPDF()" style="margin-top: 0; background: #8b5cf6;">🎲 Tạo Đề Thi PDF (22 câu)</button></div>
         </div>
     </div>
 
@@ -165,5 +166,7 @@ function convertDriveUrl(url) {
     return url.trim();
 }
 </script>
+<!-- Thư viện tự động chuyển HTML thành file PDF trực tiếp -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>
