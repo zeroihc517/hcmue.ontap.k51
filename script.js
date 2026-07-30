@@ -1,43 +1,142 @@
-// --- 1. BIẾN TOÀN CỤC & CẤU HÌNH API ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4AgHlkzQjVnQ1tjJ2hkdZS3Xa3_bU8Ym2pAEiYWDZoSRlFcHjSlk7UUOh8OoJo6AaiA/exec";
 let examData = [];
 let currentQuestionIndex = 1;
 const userAnswers = {}; 
 const flaggedQuestions = new Set(); 
 let currentZoom = 1.0; 
 let countdown;
+let violationCount = 0;
+let isExamActive = false;
 
-// --- 2. KHỞI TẠO HỆ THỐNG TRÊN GITHUB PAGES ---
+// --- 1. KHỞI TẠO HỆ THỐNG ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Gọi API để lấy đề thi từ Google Sheets
-    fetch(GOOGLE_SCRIPT_URL)
-        .then(response => response.json())
-        .then(data => {
-            examData = data;
-            document.getElementById('init-loading').classList.remove('active');
-            document.getElementById('login-screen').classList.add('active');
-            initSystem();
+    fetch(`${GOOGLE_SCRIPT_URL}?action=getExamList`)
+        .then(res => res.json())
+        .then(exams => {
+            const select = document.getElementById('login-exam-select');
+            if (select) {
+                select.innerHTML = '';
+                if (!exams || exams.length === 0) {
+                    select.innerHTML = '<option value="Kỳ thi tốt nghiệp THPT 2026">Kỳ thi tốt nghiệp THPT 2026</option>';
+                } else {
+                    exams.forEach(ex => {
+                        select.innerHTML += `<option value="${ex}">${ex}</option>`;
+                    });
+                }
+            }
         })
-        .catch(error => {
-            console.error("Lỗi tải đề:", error);
-            alert("Không thể kết nối đến ngân hàng câu hỏi. Vui lòng thử tải lại trang!");
-        });
+        .catch(err => console.error("Lỗi tải danh sách đợt thi:", err));
+
+    document.getElementById('init-loading').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+    initSystem();
+    setupFullscreenAndAntiCheat();
 });
 
 function initSystem() {
-    // Xử lý Form đăng nhập
+    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (savedUser) {
+        document.getElementById('login-fullname').value = savedUser.name || savedUser.fullName || '';
+        document.getElementById('login-sbd').value = savedUser.mssv || savedUser.sbd || '';
+    }
+
     const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.onsubmit = (e) => {
         e.preventDefault();
         const fullName = document.getElementById('login-fullname').value.trim();
         const sbd = document.getElementById('login-sbd').value.trim();
-        localStorage.setItem('currentUser', JSON.stringify({fullName, sbd}));
-        showExamScreen(fullName, sbd);
+        const selectedExam = document.getElementById('login-exam-select').value;
+        
+        localStorage.setItem('currentUser', JSON.stringify({
+            name: fullName, fullName: fullName, mssv: sbd, sbd: sbd, examName: selectedExam
+        }));
+
+        // BẮT BUỘC FULL SCREEN KHI BẮT ĐẦU VÀO THI
+        requestFullscreenMode();
+
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('init-loading').classList.add('active');
+
+        loadExamDataAndStart(selectedExam, fullName, sbd);
+    };
+
+    const container = document.getElementById('questions-container');
+    container.addEventListener('change', (e) => {
+        if (e.target.type === 'radio') {
+            userAnswers[e.target.name] = e.target.value;
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            const match = e.target.name.match(/\d+/);
+            if (match) {
+                const dot = document.getElementById(`dot-${match[0]}`);
+                if (dot) dot.classList.add('done');
+            }
+            updateAnswerCount();
+        }
     });
 
-    // Khởi tạo Navigation Dots
+    container.addEventListener('input', (e) => {
+        if (e.target.type === 'text') {
+            userAnswers[e.target.name] = e.target.value;
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            const match = e.target.name.match(/\d+/);
+            if (match) {
+                const dot = document.getElementById(`dot-${match[0]}`);
+                if (dot) {
+                    e.target.value.trim() !== "" ? dot.classList.add('done') : dot.classList.remove('done');
+                }
+            }
+            updateAnswerCount();
+        }
+    });
+
+    // PHỤC HỒI PHIÊN LÀM BÀI NẾU F5
+    const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
+    const examTimeLeft = localStorage.getItem('examTimeLeft');
+    
+    if (savedUser && (examTimeLeft !== null || savedAnswers !== null)) {
+        if (savedAnswers) Object.assign(userAnswers, savedAnswers);
+        
+        const userName = savedUser.name || savedUser.fullName;
+        const userSbd = savedUser.mssv || savedUser.sbd;
+        const userExam = savedUser.examName || "Kỳ thi tốt nghiệp THPT 2026";
+        
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('init-loading').classList.add('active');
+        
+        loadExamDataAndStart(userExam, userName, userSbd);
+    }
+}
+
+function loadExamDataAndStart(selectedExam, fullName, sbd) {
+    fetch(`${GOOGLE_SCRIPT_URL}?examName=${encodeURIComponent(selectedExam)}`)
+        .then(res => res.json())
+        .then(data => {
+            examData = data;
+            document.getElementById('init-loading').classList.remove('active');
+            showExamScreen(fullName, sbd);
+            buildNavDots();
+            
+            Object.keys(userAnswers).forEach(key => {
+                const match = key.match(/\d+/);
+                if (match) {
+                    const dot = document.getElementById(`dot-${match[0]}`);
+                    if (dot) dot.classList.add('done');
+                }
+            });
+            updateAnswerCount();
+            isExamActive = true;
+        })
+        .catch(err => {
+            console.error("Lỗi tải đề thi:", err);
+            alert("Lỗi tải đề thi. Vui lòng kiểm tra lại kết nối mạng!");
+        });
+}
+
+function buildNavDots() {
     const navDots = document.getElementById('navDots');
-    for (let i = 1; i <= 22; i++) {
+    if (!navDots) return;
+    navDots.innerHTML = '';
+    
+    for (let i = 1; i <= examData.length; i++) {
         const dot = document.createElement('div');
         dot.className = 'dot';
         dot.id = `dot-${i}`;
@@ -45,45 +144,56 @@ function initSystem() {
         dot.onclick = () => { currentQuestionIndex = i; renderQuestion(i); };
         navDots.appendChild(dot);
     }
+}
 
-    // Lắng nghe sự kiện chọn đáp án
-    const container = document.getElementById('questions-container');
-    container.addEventListener('change', (e) => {
-        if (e.target.type === 'radio') {
-            userAnswers[e.target.name] = e.target.value;
-            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`).classList.add('done');
-            updateAnswerCount();
-        }
-    });
-    container.addEventListener('input', (e) => {
-        if (e.target.type === 'text') {
-            userAnswers[e.target.name] = e.target.value;
-            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            const dot = document.getElementById(`dot-${e.target.name.match(/\d+/)[0]}`);
-            e.target.value.trim() !== "" ? dot.classList.add('done') : dot.classList.remove('done');
-            updateAnswerCount();
-        }
-    });
-
-    // Phục hồi phiên làm bài nếu lỡ F5
-    const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-    const savedAnswers = JSON.parse(localStorage.getItem('userAnswers'));
-    if (savedAnswers) Object.assign(userAnswers, savedAnswers);
-    if (savedUser) {
-        showExamScreen(savedUser.fullName, savedUser.sbd);
-        setTimeout(() => {
-            Object.keys(userAnswers).forEach(key => {
-                const qNum = key.match(/\d+/)[0];
-                const dot = document.getElementById(`dot-${qNum}`);
-                if (dot) dot.classList.add('done');
-            });
-            updateAnswerCount();
-        }, 100);
+// --- 2. QUẢN LÝ FULL SCREEN & CHỐNG GIAN LẬN ---
+function requestFullscreenMode() {
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(err => console.log(err));
+    } else if (docEl.mozRequestFullScreen) {
+        docEl.mozRequestFullScreen();
+    } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+    } else if (docEl.msRequestFullscreen) {
+        docEl.msRequestFullscreen();
     }
 }
 
-// --- 3. LOGIC HIỂN THỊ UI ---
+function setupFullscreenAndAntiCheat() {
+    // Lắng nghe sự kiện Thoát Fullscreen
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    // Lắng nghe sự kiện chuyển tab / ẩn trang
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isExamActive) {
+            triggerViolationWarning();
+        }
+    });
+}
+
+function handleFullscreenChange() {
+    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (!isFullscreen && isExamActive) {
+        triggerViolationWarning();
+    }
+}
+
+function triggerViolationWarning() {
+    violationCount++;
+    document.getElementById('violation-count').innerText = violationCount;
+    document.getElementById('warning-modal').classList.add('active');
+}
+
+function forceFullscreenAndResume() {
+    requestFullscreenMode();
+    document.getElementById('warning-modal').classList.remove('active');
+}
+
+// --- 3. ĐỒNG HỒ & GIAO DIỆN ---
 function showExamScreen(fullName, sbd) {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('exam-screen').classList.add('active');
@@ -94,7 +204,31 @@ function showExamScreen(fullName, sbd) {
     document.getElementById('display-date').innerText = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
     renderQuestion(1);
-    startTimer(90 * 60);
+    startTimer(90 * 60); // 90 Phút
+}
+
+function startTimer(duration) {
+    const savedTime = localStorage.getItem('examTimeLeft');
+    let timeLeft = (savedTime !== null) ? parseInt(savedTime) : duration;
+    const timerElement = document.getElementById('timer');
+    
+    if (countdown) clearInterval(countdown);
+    
+    countdown = setInterval(() => {
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        timerElement.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        
+        localStorage.setItem('examTimeLeft', timeLeft);
+
+        if (timeLeft <= 0) { 
+            clearInterval(countdown); 
+            localStorage.removeItem('examTimeLeft');
+            alert("Đã hết thời gian 90 phút làm bài! Hệ thống tự động thu bài.");
+            executeSubmission(); 
+        }
+        timeLeft--;
+    }, 1000);
 }
 
 function renderQuestion(index) {
@@ -164,20 +298,20 @@ function renderQuestion(index) {
     updateActiveDot(index);
 }
 
-// --- 4. HÀM ĐIỀU HƯỚNG & ZOOM ---
+// --- 4. HÀM ĐIỀU HƯỚNG & MODAL NỘP BÀI ---
 function toggleFlag() {
     const dot = document.getElementById(`dot-${currentQuestionIndex}`);
     if (flaggedQuestions.has(currentQuestionIndex)) {
         flaggedQuestions.delete(currentQuestionIndex);
-        dot.classList.remove('flagged');
+        if (dot) dot.classList.remove('flagged');
     } else {
         flaggedQuestions.add(currentQuestionIndex);
-        dot.classList.add('flagged');
+        if (dot) dot.classList.add('flagged');
     }
     renderQuestion(currentQuestionIndex);
 }
 
-function nextQuestion() { if (currentQuestionIndex < 22) { currentQuestionIndex++; renderQuestion(currentQuestionIndex); } }
+function nextQuestion() { if (currentQuestionIndex < examData.length) { currentQuestionIndex++; renderQuestion(currentQuestionIndex); } }
 function prevQuestion() { if (currentQuestionIndex > 1) { currentQuestionIndex--; renderQuestion(currentQuestionIndex); } }
 
 function changeZoom(delta) {
@@ -189,16 +323,37 @@ function changeZoom(delta) {
 
 function updateActiveDot(index) {
     document.querySelectorAll('.dot').forEach(dot => dot.classList.remove('active'));
-    document.getElementById(`dot-${index}`).classList.add('active');
+    const currentDot = document.getElementById(`dot-${index}`);
+    if (currentDot) currentDot.classList.add('active');
 }
 
 function updateAnswerCount() {
     const answeredSet = new Set();
-    Object.keys(userAnswers).forEach(key => answeredSet.add(key.match(/\d+/)[0]));
-    document.getElementById('answered-count').innerText = `${answeredSet.size}/22`;
+    Object.keys(userAnswers).forEach(key => {
+        const match = key.match(/\d+/);
+        if (match) answeredSet.add(match[0]);
+    });
+    document.getElementById('answered-count').innerText = `${answeredSet.size}/${examData.length}`;
 }
 
-// --- 5. TÍNH ĐIỂM VÀ NỘP BÀI THI ---
+// MỞ MODAL XÁC NHẬN NỘP BÀI HOÀNH TRÁNG
+function confirmSubmit() {
+    const answeredSet = new Set();
+    Object.keys(userAnswers).forEach(key => {
+        const match = key.match(/\d+/);
+        if (match) answeredSet.add(match[0]);
+    });
+    
+    document.getElementById('confirm-answered-count').innerText = `${answeredSet.size}/${examData.length}`;
+    document.getElementById('confirm-time-left').innerText = document.getElementById('timer').innerText;
+    document.getElementById('confirm-modal').classList.add('active');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('active');
+}
+
+// --- 5. TÍNH ĐIỂM VÀ THỰC THI NỘP BÀI ---
 function calculateScore() {
     let totalScore = 0;
     examData.forEach(q => {
@@ -217,18 +372,14 @@ function calculateScore() {
             let userVal = (userAnswers[`q${q.id}`] || "").toString().trim().toLowerCase();
             let correctVal = q.correct.toString().trim().toLowerCase();
 
-            // Xử lý thông minh cho số thập phân: Đổi hết phẩy (,) thành chấm (.)
             let userNumStr = userVal.replace(/,/g, '.');
             let correctNumStr = correctVal.replace(/,/g, '.');
 
-            // Kiểm tra: Nếu cả đáp án của sheet và của học sinh đều là số
             if (!isNaN(userNumStr) && !isNaN(correctNumStr) && userNumStr !== "" && correctNumStr !== "") {
-                // Ép kiểu về số thập phân để so sánh (ví dụ: 3.140 == 3.14 sẽ ra True)
                 if (parseFloat(userNumStr) === parseFloat(correctNumStr)) {
                     totalScore += 0.5;
                 }
             } else {
-                // Nếu không phải là số (VD đáp án là chữ "vô nghiệm" hoặc phân số "1/2") thì so sánh chữ
                 if (userVal === correctVal) {
                     totalScore += 0.5;
                 }
@@ -238,82 +389,72 @@ function calculateScore() {
     return totalScore.toFixed(2);
 }
 
-function startTimer(duration) {
-    const savedTime = localStorage.getItem('examTimeLeft');
-    let timeLeft = savedTime ? parseInt(savedTime) : duration;
-    const timerElement = document.getElementById('timer');
-    
-    if (countdown) clearInterval(countdown);
-    
-    countdown = setInterval(() => {
-        let m = Math.floor(timeLeft / 60);
-        let s = timeLeft % 60;
-        timerElement.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-        
-        localStorage.setItem('examTimeLeft', timeLeft);
-
-        if (timeLeft <= 0) { 
-            clearInterval(countdown); 
-            localStorage.removeItem('examTimeLeft');
-            alert("Đã hết thời gian làm bài! Hệ thống tự động thu bài.");
-            executeSubmission(); 
-        }
-        timeLeft--;
-    }, 1000);
-}
-
-function confirmSubmit() { if (confirm("Bạn có chắc chắn muốn nộp bài?")) executeSubmission(); }
-
 function executeSubmission() {
+    isExamActive = false;
+    closeConfirmModal();
+    
     if (countdown) clearInterval(countdown);
-    document.getElementById('exam-screen').classList.remove('active');
     
     const finalScore = calculateScore();
     const answeredSet = new Set();
-    Object.keys(userAnswers).forEach(key => answeredSet.add(key.match(/\d+/)[0]));
-    const soCauDaLam = `${answeredSet.size}/22`;
+    Object.keys(userAnswers).forEach(key => {
+        const match = key.match(/\d+/);
+        if (match) answeredSet.add(match[0]);
+    });
+    const soCauDaLam = `${answeredSet.size}/${examData.length}`;
 
     const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+    const studentName = savedUser ? (savedUser.name || savedUser.fullName) : "Ẩn danh";
+    const studentMSSV = savedUser ? (savedUser.mssv || savedUser.sbd) : "000";
+    const selectedExam = savedUser ? (savedUser.examName) : "Kỳ thi tốt nghiệp THPT 2026";
+
+    // Thoát Fullscreen khi nộp xong
+    if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => console.log(err));
+    }
+
+    document.getElementById('exam-screen').classList.remove('active');
+    document.getElementById('result-screen').classList.add('active');
+    document.getElementById('res-done').innerText = soCauDaLam;
+    document.getElementById('res-score').innerText = `${finalScore}/10`;
+
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('examTimeLeft');
+
     const payload = {
-        username: savedUser ? savedUser.sbd : "000",
-        studentName: savedUser ? savedUser.fullName : "Ẩn danh",
-        examName: "Kỳ thi tốt nghiệp THPT 2026",
+        username: studentMSSV,
+        studentName: studentName,
+        examName: selectedExam,
         score: `${finalScore}/10`,
-        extraData: soCauDaLam,
+        extraData: `${soCauDaLam} (Vi phạm: ${violationCount} lần)`,
         userAnswersText: JSON.stringify(userAnswers)
     };
 
-    // Đẩy dữ liệu bằng fetch theo cấu trúc API mới
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(payload),
         headers: { "Content-Type": "text/plain;charset=utf-8" } 
-    })
-    .then(response => response.json())
-    .then(result => {
-        document.getElementById('result-screen').classList.add('active');
-        document.getElementById('res-done').innerText = soCauDaLam;
-        document.getElementById('res-score').innerText = `${finalScore}/10`;
-        localStorage.removeItem('userAnswers');
-        localStorage.removeItem('examTimeLeft');
-    })
-    .catch(error => {
-        console.error("Lỗi nộp bài:", error);
-        alert("Đã xảy ra lỗi khi lưu kết quả lên máy chủ. Bạn vui lòng báo với giáo viên kiểm tra lại mạng!");
-    });
+    }).catch(err => console.error("Lỗi đồng bộ bài làm:", err));
 }
 
-// Hàm chuẩn SPA: Trở về màn hình đăng nhập lập tức, không reload trang
 function finishExam() {
-    localStorage.clear();
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('examTimeLeft');
+    
     for (let prop in userAnswers) delete userAnswers[prop];
     flaggedQuestions.clear();
     currentQuestionIndex = 1;
-    document.getElementById('login-form').reset();
+    violationCount = 0;
+    
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.reset();
+    
     document.querySelectorAll('.dot').forEach(el => el.classList.remove('done', 'active', 'flagged'));
     document.getElementById('answered-count').innerText = "0/22";
 
     document.getElementById('result-screen').classList.remove('active');
     document.getElementById('login-screen').classList.add('active');
+    
+    initSystem(); 
     window.scrollTo(0, 0);
 }

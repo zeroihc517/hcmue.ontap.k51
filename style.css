@@ -50,7 +50,36 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 
 .reading-panel { width: 50% !important; padding: 25px; border-right: 1px solid var(--border-color); overflow-y: auto; background: #fff; line-height: 1.6; }
 .question-panel { display: flex; flex-direction: column; width: 60%; padding: 25px; height: calc(100vh - 170px); }
-.content-scroll { height: 100%; overflow-y: auto; padding-right: 15px; }
+/* Trong file style.css */
+
+/* 1. Đảm bảo container chính dùng flex để co giãn */
+#main-question-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Chiếm trọn chiều cao của section cha */
+    flex: 1;      /* Cho phép co giãn theo màn hình */
+    overflow: hidden; /* Quan trọng: Ngăn không cho toàn bộ panel bị đẩy ra ngoài */
+}
+
+/* 2. Ép content-scroll cuộn bên trong */
+.content-scroll {
+    flex: 1;
+    overflow-y: auto !important; /* Buộc phải có thanh cuộn dọc */
+    padding: 20px;
+    height: 100%; /* Giới hạn chiều cao */
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch; /* Mượt mà trên điện thoại */
+}
+.content-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.content-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.content-scroll::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
 
 .full-width { width: 100% !important; }
 .split-width { width: 60% !important; }
@@ -58,7 +87,41 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 /* Item Câu hỏi */
 .question-item { padding: 25px; margin-bottom: 20px; border-left: 5px solid #e2e8f0; background: #fafafa; border-radius: 0 8px 8px 0; transition: all 0.3s; box-sizing: border-box; }
 .question-item.flagged { border-left-color: #facc15 !important; background-color: #fefce8; }
-.question-item img { max-width: 100%; height: auto; display: block; margin: 15px auto; max-height: 40vh; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 5px; background: white; }
+.question-item img {
+    display: block;
+    margin: 15px auto;
+    
+    /* Khống chế kích thước hình ảnh gọn gàng */
+    max-width: 80%;          /* Không tràn quá 80% chiều rộng khung câu hỏi */
+    max-height: 250px;        /* Giới hạn chiều cao tối đa (tránh ảnh bị quá cao) */
+    width: auto;             /* Tự động co tỷ lệ theo chiều rộng */
+    height: auto;            /* Giữ đúng tỷ lệ ảnh, không bị méo */
+    
+    /* Trang trí khung ảnh */
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+/* CẬP NHẬT ĐOẠN NÀY ĐỂ HÌNH Ở CỘT TRÁI (PHẦN II) TO HƠN */
+.reading-content img {
+    display: block;
+    margin: 15px auto; /* Căn giữa */
+    
+    /* Cấu hình kích thước mới, to hơn */
+    max-width: 95%;           /* Mở rộng chiều rộng tối đa ra gần sát khung (khoảng 95%) */
+    max-height: 350px;        /* Tăng chiều cao tối đa lên 350px để ảnh to hơn chiều dọc */
+    width: auto;              /* Tự động tỷ lệ rộng */
+    height: auto;             /* Tự động tỷ lệ cao, tránh méo */
+    
+    /* Giữ nguyên các phần trang trí khung ảnh */
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
 
 .options label { display: block; margin: 12px 0; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; background: white; transition: 0.2s; }
 .options label:hover { border-color: #3b82f6; background: #eff6ff; }
@@ -74,9 +137,26 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 .short-answer-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
 
 /* Thanh điều hướng câu hỏi dưới cùng */
-.question-nav { background: #f8fafc; padding: 15px; border-top: 1px solid var(--border-color); box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-.nav-dots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1000px; margin: 0 auto; }
-.dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #cbd5e1; background: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.question-nav {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background: #ffffff;
+    border-top: 1px solid #cbd5e1;
+    overflow-x: auto; /* Bật cuộn ngang nếu nội dung vượt quá chiều rộng */
+    white-space: nowrap; /* Ép các ô số nằm trên một hàng */
+    scrollbar-width: thin; /* Làm gọn thanh cuộn trên trình duyệt */
+}
+
+.nav-dots {
+    display: flex;
+    flex-wrap: nowrap; /* Đảm bảo không xuống dòng */
+    gap: 8px; /* Khoảng cách giữa các ô */
+    padding: 0 10px;
+}
+.dot { flex: 0 0 auto; /* Đảm bảo ô không bị co lại */
+    min-width: 30px; /* Độ rộng cố định cho ô số */
+    height: 30px; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #cbd5e1; background: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
 .dot.done { background: #22c55e; color: white; border-color: #22c55e; }
 .dot.active { background: #3b82f6; color: white; border-color: #3b82f6; transform: scale(1.1); }
 .dot.flagged { border-color: #facc15; background-color: #fefce8; color: #a16207; }
@@ -91,3 +171,117 @@ body { font-family: Arial, sans-serif; margin: 0; background-color: #e5e7eb; col
 .highlight { color: #dc2626; font-weight: bold; font-size: 1.3rem; }
 .btn-finish { margin-top: 30px; padding: 12px 40px; border: none; background: var(--primary-blue); color: white; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; transition: 0.2s; }
 .btn-finish:hover { background: #152960; }
+/* BỔ SUNG VÀO CUỐI FILE STYLE.CSS */
+
+/* Custom Modal Overlay */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.custom-modal.active {
+    display: flex !important;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.custom-modal-card {
+    background: #ffffff;
+    width: 460px;
+    max-width: 90%;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e2e8f0;
+}
+
+.modal-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.custom-modal-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.modal-desc {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.modal-info-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.modal-info-box p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+    color: #334155;
+    display: flex;
+    justify-content: space-between;
+}
+
+.danger-box {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-modal {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+.btn-cancel:hover { background: #e2e8f0; }
+
+.btn-confirm {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+.btn-confirm:hover { background: #1d4ed8; }
+
+.btn-fullscreen {
+    background: #dc2626;
+    color: #ffffff;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+.btn-fullscreen:hover { background: #b91c1c; }

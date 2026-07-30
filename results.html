@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Kết Quả Bài Làm Thí Sinh</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="results.css">
+    <!-- Thư viện xlsx để xuất file Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="admin-container full-width-container">
+        <header class="admin-header">
+            <h2>📊 BÁO CÁO & XUẤT BÀI LÀM THÍ SINH</h2>
+            <div class="header-actions">
+                <a href="admin.html" class="btn-link">⚙️ Trắc nghiệm bank</a>
+                <a href="cauhoi.html" class="btn-link">📄 Trang thi</a>
+            </div>
+        </header>
+
+        <main class="results-main">
+            <!-- Thanh Công Cụ Lọc & Xuất File -->
+            <div class="admin-card toolbar-card">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="🔍 Tìm theo Họ tên hoặc SBD..." oninput="filterResults()">
+                </div>
+                <div class="filter-box">
+                    <select id="exam-filter" onchange="filterResults()">
+                        <option value="">-- Tất cả đợt thi --</option>
+                    </select>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-export btn-excel" onclick="exportToExcel()">📥 Xuất Excel (.xlsx)</button>
+                    <button class="btn-export btn-csv" onclick="exportToCSV()">📄 Xuất CSV</button>
+                    <button class="btn-refresh" onclick="loadResultsData()">🔄 Tải lại dữ liệu</button>
+                </div>
+            </div>
+
+            <!-- Thống kê nhanh -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h4>Tổng số bài nộp</h4>
+                    <span id="stat-total">0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Điểm trung bình</h4>
+                    <span id="stat-avg">0.0</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Điểm cao nhất</h4>
+                    <span id="stat-max">0.0</span>
+                </div>
+            </div>
+
+            <!-- Bảng Danh Sách Bài Làm -->
+            <div class="admin-card table-card">
+                <div id="loading-indicator" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu bài làm từ máy chủ...</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="results-table" id="results-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Thời gian nộp</th>
+                                <th>Họ và tên</th>
+                                <th>SBD / MSSV</th>
+                                <th>Đợt thi</th>
+                                <th>Số câu đã làm</th>
+                                <th>Điểm số</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody">
+                            <!-- Dữ liệu đổ ở đây -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Đáp Án Thí Sinh -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Chi tiết bài làm</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Chi tiết bài làm đổ vào đây -->
+            </div>
+        </div>
+    </div>
+<script src="config.js"></script>
+    <script src="results.js"></script>
+<!-- Bổ sung đoạn script MathJax này vào <head> của results.html -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+    startup: { typeset: false } 
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+</body>
+</html>

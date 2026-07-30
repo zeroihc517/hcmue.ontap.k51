@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Thi Trực Tuyến</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+        startup: { typeset: false } 
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+</head>
+<body>
+    <div id="init-loading" class="screen active">
+        <div class="spinner"></div>
+        <h3 style="color: var(--primary-blue);">Đang tải dữ liệu ngân hàng câu hỏi...</h3>
+    </div>
+
+    <div id="login-screen" class="screen">
+        <div class="login-card">
+            <h2>ĐĂNG NHẬP LÀM BÀI THI</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Họ và tên *</label>
+                    <input type="text" id="login-fullname" placeholder="Nhập họ và tên" required>
+                </div>
+                <div class="input-group">
+                    <label>Số báo danh (MSSV) *</label>
+                    <input type="text" id="login-sbd" placeholder="Nhập mã số sinh viên" required>
+                </div>
+                <div class="input-group">
+                    <label>Đợt thi *</label>
+                    <select id="login-exam-select" required>
+                        <option value="">-- Đang tải danh sách đợt thi... --</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-login">Đăng nhập & Bắt đầu thi</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="exam-screen" class="screen">
+        <header class="exam-header">
+            <div class="user-info">
+                <p><strong id="display-fullname">Nguyễn Văn A</strong></p>
+                <span>SBD: <span id="display-sbd">01000071</span> | Môn: TOÁN | Ngày thi: <span id="display-date">--/--/----</span></span>
+            </div>
+            <div class="status-section">
+                <div class="timer">⏰ <span id="timer">90:00</span></div>
+                <div class="connection-status">🟢 Đang kết nối</div>
+                <button class="submit-btn" onclick="confirmSubmit()">NỘP BÀI</button>
+            </div>
+        </header>
+
+        <div class="action-bar">
+            <div class="action-left">
+                <button id="btn-flag" class="btn-nav" onclick="toggleFlag()">🚩 Gắn cờ</button>
+            </div>
+            <div class="action-center">
+                <button class="btn-nav" onclick="prevQuestion()">Quay lại</button>
+                <button class="btn-nav btn-primary" onclick="nextQuestion()">Tiếp theo</button>
+            </div>
+            <div class="action-right">
+                <div class="answer-count">Số câu đã trả lời: <span id="answered-count">0/22</span></div>
+                <button class="btn-save">Lưu</button>
+                <div class="icon-tools">
+                    <button class="icon-btn" onclick="changeZoom(0.1)" title="Phóng to">➕</button>
+                    <button class="icon-btn" onclick="changeZoom(-0.1)" title="Thu nhỏ">➖</button>
+                </div>
+            </div>
+        </div>
+
+        <main class="exam-container" id="main-container">
+            <section class="reading-panel" id="side-reading-panel" style="display: none;">
+                <div class="panel-header">ĐỀ BÀI</div>
+                <div class="reading-content" id="shared-reading-content"></div>
+            </section>
+
+            <section class="question-panel" id="main-question-panel">
+                <div class="panel-header" id="panel-title">PHẦN TRẢ LỜI</div>
+                <div class="content-scroll" id="questions-container">
+                </div>
+            </section>
+        </main>
+
+        <footer class="question-nav">
+            <div class="nav-dots" id="navDots"></div>
+        </footer>
+    </div>
+
+    <!-- MÀN HÌNH KẾT QUẢ -->
+    <div id="result-screen" class="screen">
+        <div class="result-card">
+            <h3>KẾT QUẢ THI</h3>
+            <div class="result-content">
+                <p class="success-msg">Bạn đã nộp bài thi thành công!</p>
+                <div class="result-stats">
+                    <p>Số câu đã trả lời: <span class="highlight" id="res-done">0/22</span></p>
+                    <p>Số điểm đạt được: <span class="highlight" id="res-score">0.0/10</span></p>
+                </div>
+                <button class="btn-finish" onclick="finishExam()">Hoàn thành</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. KHUNG XÁC NHẬN NỘP BÀI HOÀNH TRÁNG -->
+    <div id="confirm-modal" class="custom-modal">
+        <div class="custom-modal-card">
+            <div class="modal-icon warning-icon">📝</div>
+            <h3>XÁC NHẬN NỘP BÀI THI</h3>
+            <p class="modal-desc">Bạn có chắc chắn muốn kết thúc bài thi và nộp bài ngay bây giờ không?</p>
+            <div class="modal-info-box">
+                <p>Số câu đã làm: <strong id="confirm-answered-count">0/22</strong></p>
+                <p>Thời gian còn lại: <strong id="confirm-time-left" style="color: #d97706;">90:00</strong></p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal btn-cancel" onclick="closeConfirmModal()">Làm tiếp ↩️</button>
+                <button class="btn-modal btn-confirm" onclick="executeSubmission()">Nộp bài ngay 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. KHUNG CẢNH BÁO VI PHẠM / CHỐNG THOÁT FULL SCREEN -->
+    <div id="warning-modal" class="custom-modal danger-theme">
+        <div class="custom-modal-card">
+            <div class="modal-icon danger-icon">🚨</div>
+            <h3 style="color: #dc2626;">CẢNH BÁO VI PHẠM QUY CHẾ THI</h3>
+            <p class="modal-desc">Hệ thống phát hiện bạn vừa **thoát màn hình thi** hoặc **chuyển sang cửa sổ khác**!</p>
+            <div class="modal-info-box danger-box">
+                <p>Số lần vi phạm ghi nhận: <strong id="violation-count" style="color:#dc2626;">1</strong></p>
+                <p style="font-size:0.85rem; color:#64748b; margin-top:4px;">Lưu ý: Mọi hành vi thoát màn hình thi đều được ghi lại trong hệ thống.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal btn-fullscreen" onclick="forceFullscreenAndResume()">Trở lại Toàn Màn Hình 🖥️</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
