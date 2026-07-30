@@ -121,7 +121,7 @@ function loadBankList() {
         .then(res => res.json())
         .then(data => {
             allBankQuestions = data;
-            renderBankList();
+            filterAndRenderBank(); // Gọi hàm lọc + render mới
         })
         .catch(err => console.error("Lỗi lấy danh sách bank:", err))
         .finally(() => {
@@ -129,29 +129,65 @@ function loadBankList() {
         });
 }
 
-function renderBankList() {
+function filterAndRenderBank() {
+    const searchKeyword = document.getElementById('search-bank-input')?.value.toLowerCase().trim() || "";
     const container = document.getElementById('bank-list-container');
+    const countBadge = document.getElementById('bank-count-badge');
+    
+    if (!container) return;
     container.innerHTML = '';
 
-    if (allBankQuestions.length === 0) {
-        container.innerHTML = '<div style="color:#64748b; font-size:0.9rem;">Chưa có câu hỏi nào trong đợt thi này.</div>';
+    // Lọc theo nội dung
+    const filteredQuestions = allBankQuestions.filter(q => {
+        return (q.content || "").toLowerCase().includes(searchKeyword);
+    });
+
+    if (countBadge) {
+        countBadge.innerText = `${filteredQuestions.length} câu`;
+    }
+
+    if (filteredQuestions.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; color:#94a3b8; font-size:0.88rem; padding:20px 0;">
+                ${searchKeyword ? '❌ Không tìm thấy câu hỏi phù hợp.' : '📭 Chưa có câu hỏi nào trong đợt thi này.'}
+            </div>`;
         return;
     }
 
-    allBankQuestions.forEach((q, index) => {
+    filteredQuestions.forEach((q) => {
+        // Tìm chỉ số thực trong mảng gốc để hàm prepareEditQuestion hoạt động chính xác
+        const originalIndex = allBankQuestions.findIndex(item => item.rowIndex === q.rowIndex);
+
         const item = document.createElement('div');
-        item.style.cssText = "background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;";
+        item.className = 'bank-item';
+        
         item.innerHTML = `
-            <div style="font-size:0.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
-                <span style="background:#e0e7ff; color:#3730a3; font-weight:bold; padding:2px 6px; border-radius:4px;">${q.examName ? q.examName : 'Chung'} | P${q.part}-Bộ ${q.setNum}</span> 
-                <strong>${q.content}</strong>
+            <div class="bank-item-info">
+                <div class="bank-badges">
+                    <span class="badge badge-exam">${q.examName ? q.examName : 'Chung'}</span>
+                    <span class="badge badge-part">Phần ${q.part}</span>
+                    <span class="badge badge-set">Bộ ${q.setNum}</span>
+                </div>
+                <div class="bank-item-content" title="${escapeHtml(q.content)}">
+                    ${q.content}
+                </div>
             </div>
-            <button onclick="prepareEditQuestion(${index})" style="background:#3b82f6; color:white; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; font-size:0.8rem; cursor:pointer;">✏️ Sửa</button>
+            <button class="btn-edit-q" onclick="prepareEditQuestion(${originalIndex})">✏️ Sửa</button>
         `;
         container.appendChild(item);
     });
+    
+    // Render lại công thức MathJax nếu có
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([container]).catch(err => console.log(err));
+    }
 }
 
+// Hàm bổ trợ escape HTML tránh lỗi hiển thị attribute title
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 // ĐỔ DỮ LIỆU CÂU HỎI VÀO FORM ĐỂ CHỈNH SỬA
 function prepareEditQuestion(index) {
     const q = allBankQuestions[index];

@@ -440,13 +440,18 @@ function executeSubmission() {
     localStorage.removeItem('userAnswers');
     localStorage.removeItem('examTimeLeft');
 
-    const payload = {
+const payload = {
         username: studentMSSV,
         studentName: studentName,
         examName: selectedExam,
         score: `${finalScore}/10`,
         extraData: `${soCauDaLam} (Vi phạm: ${violationCount} lần)`,
-        userAnswersText: JSON.stringify(userAnswers)
+        
+        // SỬA LẠI DÒNG DƯỚI ĐÂY: Lưu thành một Object chứa cả đề bài thực tế
+        userAnswersText: JSON.stringify({ 
+            answers: userAnswers, 
+            questions: examData 
+        })
     };
 
     fetch(GOOGLE_SCRIPT_URL, {

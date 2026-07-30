@@ -247,3 +247,135 @@ body {
         position: static;
     }
 }
+/* =========================================================
+   STYLING CHO "CÁC CÂU HỎI ĐÃ CÓ"
+   ========================================================= */
+
+.bank-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.bank-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bank-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.bank-search-input, .bank-filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    background: var(--bg-slate);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.bank-search-input:focus, .bank-filter-select:focus {
+    border-color: var(--primary-indigo);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.bank-list-container {
+    max-height: 480px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+/* Scrollbar đẹp mắt */
+.bank-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+.bank-list-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* Thẻ câu hỏi trong ngân hàng */
+.bank-item {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.bank-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.bank-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0; /* Cho phép ellipsis hoạt động */
+    flex: 1;
+}
+
+.bank-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.badge-exam { background: #e0e7ff; color: #3730a3; }
+.badge-part { background: #f1f5f9; color: #475569; }
+.badge-set  { background: #fef3c7; color: #92400e; }
+
+.bank-item-content {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Nút Sửa */
+.btn-edit-q {
+    background: #ef4444; /* Dùng màu tương phản nhẹ hoặc Indigo */
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+}
+
+.btn-edit-q:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+}

@@ -109,16 +109,17 @@ function extractImage(text) {
     }
     return { cleanText, imgUrl };
 }
-
-// XEM BÀI LÀM CHI TIẾT FULL MÀN HÌNH
 function viewDetail(index) {
     const item = rawResultsData[index];
     if (!item) return;
 
     document.getElementById('modal-title').innerText = `📄 XEM BÀI LÀM CHI TIẾT: ${item.studentName.toUpperCase()} (${item.username})`;
 
-    let userAns = {};
-    try { userAns = JSON.parse(item.userAnswersText); } catch (e) { userAns = {}; }
+    // Đọc dữ liệu mới lưu (có chứa cả answers và questions)
+    let savedData = {};
+    try { savedData = JSON.parse(item.userAnswersText); } catch (e) { savedData = {}; }
+    let userAns = savedData.answers || savedData; 
+    let examQuestions = savedData.questions || [];
 
     let modalHtml = `
         <div class="exam-review-container">
@@ -132,20 +133,45 @@ function viewDetail(index) {
 
     let qIndex = 1;
 
+    // HÀM HỖ TRỢ 1: Tìm đúng câu hỏi thí sinh đã làm
+    function getQBank(part, setNum) {
+        let qFromExam = examQuestions.find(q => q.id === qIndex);
+        if (qFromExam) {
+            // Chuyển đổi định dạng câu hỏi từ bài thi sang định dạng ngân hàng
+            if (part === 1) return { content: qFromExam.question, imageUrl: qFromExam.image, optA: qFromExam.options[0], optB: qFromExam.options[1], optC: qFromExam.options[2], optD: qFromExam.options[3], correct: qFromExam.correct };
+            if (part === 2) return { content: qFromExam.reading, imageUrl: qFromExam.image, optA: qFromExam.subQuestions[0].text, optB: qFromExam.subQuestions[1].text, optC: qFromExam.subQuestions[2].text, optD: qFromExam.subQuestions[3].text, correct: qFromExam.subQuestions.map(s => s.correct).join(',') };
+            if (part === 3) return { content: qFromExam.question, imageUrl: qFromExam.image, correct: qFromExam.correct };
+        }
+        // Fallback: Nếu là dữ liệu cũ chưa có questions, tìm trong ngân hàng
+        return rawBankData.find(q => q.part == part && q.setNum == setNum && q.examName === item.examName);
+    }
+
+    // HÀM HỖ TRỢ 2: Lấy link ảnh chuẩn xác
+    function getFinalImage(qBank) {
+        let parsed = extractImage(qBank.content);
+        // Ưu tiên ảnh từ đề thi thực tế (qBank.imageUrl), nếu không có mới dùng ảnh parse từ ngân hàng cũ
+        let finalImg = qBank.imageUrl || parsed.imgUrl;
+        // Tự động convert link Drive nếu hàm convertDriveUrl tồn tại
+        if (finalImg && typeof convertDriveUrl === "function") {
+            finalImg = convertDriveUrl(finalImg);
+        }
+        return { text: parsed.cleanText, img: finalImg };
+    }
+
     // PHẦN I: 12 câu ABCD
     modalHtml += `<h3 class="part-title">PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn</h3>`;
     for (let i = 1; i <= 12; i++) {
-        let qBank = rawBankData.find(q => q.part == 1 && q.setNum == i && q.examName === item.examName);
+        let qBank = getQBank(1, i);
         if (qBank) {
-            let parsed = extractImage(qBank.content);
+            let parsedInfo = getFinalImage(qBank);
             let uVal = userAns[`q${qIndex}`] || "Chưa chọn";
             let correctVal = (qBank.correct || "").toUpperCase();
             let isCorrect = uVal === correctVal;
 
             modalHtml += `
                 <div class="review-q-item ${isCorrect ? 'correct-border' : 'wrong-border'}">
-                    <p><strong>Câu ${qIndex}.</strong> ${parsed.cleanText}</p>
-                    ${parsed.imgUrl ? `<img src="${parsed.imgUrl}" class="review-img">` : ''}
+                    <p><strong>Câu ${qIndex}.</strong> ${parsedInfo.text}</p>
+                    ${parsedInfo.img ? `<img src="${parsedInfo.img}" class="review-img">` : ''}
                     <div class="review-options">
                         ${['A', 'B', 'C', 'D'].map((opt) => {
                             let optText = qBank[`opt${opt}`] || '';
@@ -165,19 +191,19 @@ function viewDetail(index) {
         qIndex++;
     }
 
-    // PHẦN II: 6 câu Đúng/Sai (Đã sửa lại q.part == 2)
+    // PHẦN II: 6 câu Đúng/Sai
     modalHtml += `<h3 class="part-title">PHẦN II. Câu trắc nghiệm đúng sai</h3>`;
     for (let i = 1; i <= 6; i++) {
-        let qBank = rawBankData.find(q => q.part == 2 && q.setNum == i && q.examName === item.examName);
+        let qBank = getQBank(2, i);
         if (qBank) {
-            let parsed = extractImage(qBank.content);
+            let parsedInfo = getFinalImage(qBank);
             let correctArr = (qBank.correct || "").replace(/\s/g, '').toUpperCase().split(',');
 
             modalHtml += `
                 <div class="review-q-item">
                     <p><strong>Câu ${qIndex}.</strong> Đọc thông tin và cho biết các ý hỏi sau Đúng hay Sai.</p>
-                    <p class="reading-quote">${parsed.cleanText}</p>
-                    ${parsed.imgUrl ? `<img src="${parsed.imgUrl}" class="review-img">` : ''}
+                    <p class="reading-quote">${parsedInfo.text}</p>
+                    ${parsedInfo.img ? `<img src="${parsedInfo.img}" class="review-img">` : ''}
                     
                     <table class="tf-review-table">
                         <tr><th>Ý hỏi</th><th>Thí sinh chọn</th><th>Đáp án đúng</th><th>Kết quả</th></tr>
@@ -202,12 +228,12 @@ function viewDetail(index) {
         qIndex++;
     }
 
-    // PHẦN III: 6 câu Trả lời ngắn (Đã sửa lại q.part == 3)
+    // PHẦN III: 6 câu Trả lời ngắn
     modalHtml += `<h3 class="part-title">PHẦN III. Câu trắc nghiệm trả lời ngắn</h3>`;
     for (let i = 1; i <= 6; i++) {
-        let qBank = rawBankData.find(q => q.part == 3 && q.setNum == i && q.examName === item.examName);
+        let qBank = getQBank(3, i);
         if (qBank) {
-            let parsed = extractImage(qBank.content);
+            let parsedInfo = getFinalImage(qBank);
             let uVal = (userAns[`q${qIndex}`] || "").toString().trim();
             let cVal = (qBank.correct || "").toString().trim();
 
@@ -217,8 +243,8 @@ function viewDetail(index) {
 
             modalHtml += `
                 <div class="review-q-item ${isCorrect ? 'correct-border' : 'wrong-border'}">
-                    <p><strong>Câu ${qIndex}.</strong> ${parsed.cleanText}</p>
-                    ${parsed.imgUrl ? `<img src="${parsed.imgUrl}" class="review-img">` : ''}
+                    <p><strong>Câu ${qIndex}.</strong> ${parsedInfo.text}</p>
+                    ${parsedInfo.img ? `<img src="${parsedInfo.img}" class="review-img">` : ''}
                     <div class="review-status">
                         <span>Thí sinh nhập: <b>${uVal || '<i>Chưa nhập</i>'}</b> | Đáp án chuẩn: <b class="text-success">${cVal}</b></span>
                         <span class="status-icon">${isCorrect ? '✅ Đúng (+0.5đ)' : '❌ Sai'}</span>
@@ -229,15 +255,15 @@ function viewDetail(index) {
         qIndex++;
     }
 
-    modalHtml += `</div>`;
+    modalHtml += '</div>';
+    
     document.getElementById('modal-body').innerHTML = modalHtml;
     
-    // Thay đổi nút Đóng thành Nút thoát nổi bật
     const modalHeader = document.querySelector('.modal-header');
     if (modalHeader) {
         modalHeader.innerHTML = `
             <h3 id="modal-title">${document.getElementById('modal-title').innerText}</h3>
-            <button class="close-btn" onclick="closeModal()">✕ Thát xem bài làm</button>
+            <button class="close-btn" onclick="closeModal()">✕ Thoát xem bài làm</button>
         `;
     }
 
@@ -247,7 +273,6 @@ function viewDetail(index) {
         window.MathJax.typesetPromise([document.getElementById('modal-body')]).catch(err => console.log(err));
     }
 }
-
 function closeModal() {
     document.getElementById('detail-modal').classList.remove('active');
 }

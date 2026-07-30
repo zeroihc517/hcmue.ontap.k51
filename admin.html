@@ -123,18 +123,31 @@
                 </div>
 
                 <!-- Card Danh Sách Câu Hỏi Trong Ngân Hàng -->
-                <div class="admin-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px;">
-                        <h3 style="margin:0;">📚 Danh Sách Câu Hỏi</h3>
-                        <select id="filter-admin-exam" onchange="loadBankList()" style="padding:6px 10px; border-radius:8px; border:1px solid #cbd5e1; font-weight:600; background:#f8fafc;">
-                            <option value="">-- Tất cả đợt thi --</option>
-                        </select>
-                    </div>
-                    <div id="bank-list-loading" style="display:none; text-align:center; color:#64748b; padding:10px;">Đang tải danh sách câu hỏi...</div>
-                    <div id="bank-list-container" style="max-height: 400px; overflow-y: auto; display:flex; flex-direction:column; gap:8px;">
-                        <!-- Danh sách render ở đây -->
-                    </div>
-                </div>
+                <!-- Card Danh Sách Câu Hỏi Trong Ngân Hàng -->
+<div class="admin-card">
+    <div class="bank-header">
+        <div class="bank-title-bar">
+            <h3 style="margin:0;">📚 Các Câu Hỏi Đã Có</h3>
+            <span id="bank-count-badge" style="font-size:0.8rem; background:#e2e8f0; color:#475569; padding:2px 8px; border-radius:12px; font-weight:600;">0 câu</span>
+        </div>
+        
+        <!-- Bộ lọc & Tìm kiếm -->
+        <div class="bank-controls">
+            <input type="text" id="search-bank-input" class="bank-search-input" placeholder="🔍 Tìm nhanh nội dung..." oninput="filterAndRenderBank()">
+            <select id="filter-admin-exam" class="bank-filter-select" onchange="loadBankList()">
+                <option value="">-- Tất cả đợt thi --</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="bank-list-loading" style="display:none; text-align:center; color:#64748b; padding:16px; font-size:0.9rem;">
+        ⏳ Đang tải danh sách câu hỏi...
+    </div>
+
+    <div id="bank-list-container" class="bank-list-container">
+        <!-- Danh sách render ở đây -->
+    </div>
+</div>
             </div>
         </main>
     </div>
