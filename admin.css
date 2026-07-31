@@ -19,12 +19,14 @@ body {
 }
 
 .admin-container {
-    max-width: 1320px;
+    max-width: 1600px;
     margin: 24px auto;
     padding: 0 20px;
 }
 
-/* Header & Navigation Bar */
+/* =========================================================
+   1. HEADER & NAVIGATION
+   ========================================================= */
 .admin-header {
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
     color: #ffffff;
@@ -67,14 +69,17 @@ body {
     transform: translateY(-1px);
 }
 
-/* Layout Main Grid */
+/* =========================================================
+   2. LAYOUT MAIN GRID
+   ========================================================= */
 .admin-main {
     display: grid;
-    /* Cố định cột bên trái 480px để form luôn rộng rãi, cột bên phải chiếm phần còn lại */
-    grid-template-columns: 480px 1fr; 
+    /* Cột trái chiếm 55%, cột phải (Preview) chiếm 45% */
+    grid-template-columns: 55% 45%; 
     gap: 24px;
     align-items: start;
 }
+
 .admin-main > div, .admin-card {
     min-width: 0; 
 }
@@ -98,7 +103,9 @@ body {
     gap: 8px;
 }
 
-/* Form Styles & Inputs */
+/* =========================================================
+   3. FORM STYLES & INPUTS
+   ========================================================= */
 .form-row {
     display: flex;
     gap: 16px;
@@ -115,24 +122,6 @@ body {
     width: 100%;
     box-sizing: border-box;
 }
-.input-group input, 
-.input-group select, 
-.input-group textarea {
-    width: 100%;
-    box-sizing: border-box; /* Ép kích thước nằm gọn trong thẻ cha */
-}
-
-/* SỬA LỖI Ô ĐỢT THI + NÚT BẤM BỊ DỒN */
-.input-group > div {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-}
-
-.input-group > div input {
-    flex: 1;
-    min-width: 0; /* Ngăn ô input đẩy bung nút bấm */
-}
 
 .input-group label {
     font-size: 0.85rem;
@@ -141,11 +130,17 @@ body {
     margin-bottom: 6px;
 }
 
-@media (max-width: 1024px) {
-    .admin-main {
-        grid-template-columns: 1fr; /* Xuống hàng trên màn hình nhỏ */
-    }
+.input-group > div {
+    display: flex;
+    gap: 8px;
+    width: 100%;
 }
+
+.input-group > div input {
+    flex: 1;
+    min-width: 0;
+}
+
 .input-group input, 
 .input-group select, 
 .input-group textarea {
@@ -170,7 +165,7 @@ body {
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
-/* CSS DÀN NGUYÊN HÀNG / 2 HÀNG / 4 HÀNG CHUẨN ĐỀ THI */
+/* Lưới lựa chọn trắc nghiệm (Phần 1) */
 .options-grid {
     display: flex;
     flex-wrap: wrap;
@@ -178,29 +173,18 @@ body {
     row-gap: 6px;
 }
 
-/* Đáp án ngắn: 1 HÀNG (mỗi lựa chọn chiếm 25%) */
-.options-grid.layout-1-row .opt-item {
-    flex: 0 0 25%;
-    max-width: 25%;
-}
-
-/* Đáp án vừa: 2 HÀNG (mỗi lựa chọn chiếm 50%) */
-.options-grid.layout-2-rows .opt-item {
-    flex: 0 0 50%;
-    max-width: 50%;
-}
-
-/* Đáp án dài: 4 HÀNG (mỗi lựa chọn chiếm 100%) */
-.options-grid.layout-4-rows .opt-item {
-    flex: 0 0 100%;
-    max-width: 100%;
-}
+.options-grid.layout-1-row .opt-item { flex: 0 0 25%; max-width: 25%; }
+.options-grid.layout-2-rows .opt-item { flex: 0 0 50%; max-width: 50%; }
+.options-grid.layout-4-rows .opt-item { flex: 0 0 100%; max-width: 100%; }
 
 .opt-item {
     display: flex;
     align-items: baseline;
     padding-right: 8px;
     box-sizing: border-box;
+    font-size: 11pt;
+    line-height: 1.3;
+    white-space: nowrap; 
 }
 
 .opt-label {
@@ -208,44 +192,8 @@ body {
     margin-right: 5px;
     white-space: nowrap;
 }
-/* CSS Grid ép cứng tỷ lệ cột khi xuất PDF / In ấn */
-.options-container {
-    width: 100%;
-    margin-top: 8px;
-    margin-bottom: 8px;
-}
 
-/* Kiểu 1: 4 cột trên 1 hàng */
-.layout-4-col {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 4px 10px;
-}
-
-/* Kiểu 2: 2 cột trên 2 hàng */
-.layout-2-col {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 4px 10px;
-}
-
-/* Kiểu 3: 1 cột 4 hàng */
-.layout-1-col {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 4px 10px;
-}
-
-.opt-item {
-    font-size: 11pt;
-    line-height: 1.3;
-    white-space: nowrap; /* Cấm ngắt dòng giữa nhãn và công thức */
-}
-
-.opt-label {
-    font-weight: bold;
-    margin-right: 4px;
-}
+/* Lưới True/False (Phần 2) */
 .tf-input-row {
     display: flex;
     gap: 10px;
@@ -255,23 +203,14 @@ body {
 
 .tf-input-row input {
     flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border-subtle);
-    background-color: var(--bg-slate);
-    border-radius: 10px;
-    font-size: 0.9rem;
 }
 
 .tf-input-row select {
     width: 100px;
-    padding: 10px;
-    border: 1px solid var(--border-subtle);
-    background-color: var(--bg-slate);
-    border-radius: 10px;
     font-weight: 600;
 }
 
-/* Primary Button */
+/* Button Primary */
 .btn-primary-admin {
     width: 100%;
     background: #10b981;
@@ -293,33 +232,46 @@ body {
     box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
 }
 
-/* Preview Section Styling */
+/* =========================================================
+   4. LIVE PREVIEW SECTION (GIAO DIỆN BO GÓC SẠCH SẼ NHƯ CŨ)
+   ========================================================= */
 .preview-card {
     position: sticky;
     top: 24px;
+    background: var(--card-bg);
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+}
+
+.preview-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none; 
 }
 
 #preview-box {
-    background: #f8fafc;
+    background: #f8fafc; 
     border: 1px solid var(--border-subtle);
-    border-radius: 12px;
+    border-radius: 12px; 
     padding: 20px;
     min-height: 200px;
+    box-shadow: none; 
+    font-family: inherit; 
+    font-size: 0.95rem;
+    color: var(--text-main);
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .admin-main {
-        grid-template-columns: 1fr;
-    }
-    .preview-card {
-        position: static;
-    }
-}
 /* =========================================================
-   STYLING CHO "CÁC CÂU HỎI ĐÃ CÓ"
+   5. DANH SÁCH NGÂN HÀNG CÂU HỎI ĐÃ CÓ
    ========================================================= */
-
 .bank-header {
     display: flex;
     flex-direction: column;
@@ -356,39 +308,35 @@ body {
 }
 
 .bank-list-container {
-    max-height: 480px;
+    max-height: 600px; 
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px; 
     padding-right: 4px;
 }
 
-/* Scrollbar đẹp mắt */
-.bank-list-container::-webkit-scrollbar {
-    width: 6px;
-}
-.bank-list-container::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
+/* Scrollbar */
+.bank-list-container::-webkit-scrollbar { width: 6px; }
+.bank-list-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-/* Thẻ câu hỏi trong ngân hàng */
+/* Item Câu Hỏi */
 .bank-item {
+    align-items: flex-start;
+    padding: 16px;
     background: #ffffff;
     border: 1px solid var(--border-subtle);
+    border-left: 4px solid var(--primary-indigo);
     border-radius: 10px;
-    padding: 12px 14px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
     transition: all 0.2s ease;
 }
 
 .bank-item:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-indigo);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
     transform: translateY(-1px);
 }
 
@@ -396,7 +344,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    min-width: 0; /* Cho phép ellipsis hoạt động */
+    min-width: 0;
     flex: 1;
 }
 
@@ -420,17 +368,27 @@ body {
 .badge-set  { background: #fef3c7; color: #92400e; }
 
 .bank-item-content {
-    font-size: 0.9rem;
-    color: var(--text-main);
-    font-weight: 500;
-    white-space: nowrap;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-top: 8px;
+    color: #334155;
+    font-weight: 500;
 }
 
-/* Nút Sửa */
+/* Nút thao tác của câu hỏi */
+.bank-item-actions {
+    display: flex;
+    flex-direction: column; 
+    gap: 8px;
+    margin-left: auto;
+}
+
 .btn-edit-q {
-    background: #ef4444; /* Dùng màu tương phản nhẹ hoặc Indigo */
     background: linear-gradient(135deg, #6366f1, #4f46e5);
     color: white;
     border: none;
@@ -448,7 +406,7 @@ body {
     opacity: 0.9;
     transform: scale(1.03);
 }
-/* Nút In 1 Câu */
+
 .btn-print-q {
     background: linear-gradient(135deg, #0284c7, #0369a1);
     color: white;
@@ -468,125 +426,43 @@ body {
     transform: scale(1.03);
 }
 
-/* Gộp 2 nút lại cho ngay ngắn */
-.bank-item-actions {
-    display: flex;
-    gap: 8px;
-}
-/* Khung chứa các nút thao tác */
-.bank-item-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+/* =========================================================
+   6. RESPONSIVE DESIGN
+   ========================================================= */
+@media (max-width: 1024px) {
+    .admin-main {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Style nút in 1 câu */
-.btn-print-q {
-    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
-    color: white !important;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.82rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+@media (max-width: 900px) {
+    .preview-card {
+        position: static;
+    }
 }
 
-.btn-print-q:hover {
-    opacity: 0.9;
-    transform: scale(1.03);
-}
-@page { size: A4; margin: 12mm 15mm; } /* Thu nhỏ lề giấy còn 12mm */
-    body { font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.3; color: #000; }
-    * { box-sizing: border-box; }
-    
-    .header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
-    .header-left, .header-right { width: 48%; text-align: center; }
-    .header-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; margin: 0; }
-    .header-exam { font-size: 11pt; font-weight: bold; margin-top: 3px; }
-    .exam-code { font-weight: bold; border: 1px solid #000; display: inline-block; padding: 1px 6px; margin-top: 3px; font-size: 9.5pt; }
-    
-    .student-info { margin-bottom: 12px; font-size: 10pt; }
-    .part-title { font-weight: bold; margin-top: 10px; margin-bottom: 6px; font-size: 10.5pt; text-transform: uppercase; background: #eafeea; padding: 3px 6px; border-left: 3px solid #10b981; }
-    
-    .q-block { margin-top: 8px; page-break-inside: avoid; }
-    
-    /* BẢNG ĐÁP ÁN ÉP 4 CỘT TIẾT KIỆM GIẤY tuyệt đối */
-    .opt-table { width: 100%; border-collapse: collapse; margin-top: 3px; margin-bottom: 5px; }
-    .opt-table td { padding: 2px 4px; vertical-align: top; font-size: 10.5pt; }
-    
-    /* KHỐI HÌNH ẢNH THU NHỎ GỌN GÀNG */
-    img { max-width: 45%; max-height: 160px; display: block; margin: 6px auto; }
-    
-    .tf-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-    .tf-table th, .tf-table td { border: 1px solid #000; padding: 4px; text-align: left; font-size: 10pt; }
-    .tf-table th { background: #f8fafc; text-align: center; }
-    .short-ans { display: inline-block; width: 100%; border-bottom: 1px dotted #000; margin-top: 10px; height: 18px; }
-Chuẩn đét luôn! Nhìn hình bạn gửi thì có 2 vấn đề lớn cần giải quyết để đề vừa đẹp vừa tiết kiệm giấy tối đa:
+/* =========================================================
+   7. STYLES CƠ BẢN DÀNH CHO XUẤT PDF / IN ẤN
+   ========================================================= */
+@page { size: A4; margin: 12mm 15mm; } 
 
-A, B, C, D dính sát nhau: Nguyên nhân do nhãn A, B, C, D và đáp án đang nằm chung một dòng chữ liên tục, không có khoảng cách cố định.
+.header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
+.header-left, .header-right { width: 48%; text-align: center; }
+.header-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; margin: 0; }
+.header-exam { font-size: 11pt; font-weight: bold; margin-top: 3px; }
+.exam-code { font-weight: bold; border: 1px solid #000; display: inline-block; padding: 1px 6px; margin-top: 3px; font-size: 9.5pt; }
 
-Hình nằm giữa làm trống hai bên: Chuyển hình sang bên phải câu hỏi (bên trái là đề bài, bên phải là hình) giúp thu gọn chiều cao câu hỏi lại còn 1/2, tiết kiệm cực kỳ nhiều giấy.
+.student-info { margin-bottom: 12px; font-size: 10pt; }
+.part-title { font-weight: bold; margin-top: 10px; margin-bottom: 6px; font-size: 10.5pt; text-transform: uppercase; background: #eafeea; padding: 3px 6px; border-left: 3px solid #10b981; }
 
-Cập nhật mã trong file JavaScript in đề (admin.js / admin_3.js)
-Bạn mở file JS in đề và cập nhật lại phần <style> cùng đoạn ghép HTML render câu hỏi như sau:
+.q-block { margin-top: 8px; page-break-inside: avoid; }
 
-1. Cập nhật CSS gọn đẹp & hỗ trợ chia Layout hình bên phải:
-CSS
-<style>
-    @page { size: A4; margin: 12mm 15mm; }
-    body { font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.35; color: #000; }
-    * { box-sizing: border-box; }
-    
-    .header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid #000; padding-bottom: 6px; }
-    .header-left, .header-right { width: 48%; text-align: center; }
-    .header-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; margin: 0; }
-    .header-exam { font-size: 11pt; font-weight: bold; margin-top: 3px; }
-    .exam-code { font-weight: bold; border: 1px solid #000; display: inline-block; padding: 1px 6px; margin-top: 3px; font-size: 9.5pt; }
-    
-    .student-info { margin-bottom: 12px; font-size: 10pt; }
-    .part-title { font-weight: bold; margin-top: 10px; margin-bottom: 6px; font-size: 10.5pt; text-transform: uppercase; background: #eafeea; padding: 3px 6px; border-left: 3px solid #10b981; }
-    
-    .q-block { margin-top: 10px; page-break-inside: avoid; }
+.opt-table { width: 100%; border-collapse: collapse; margin-top: 3px; margin-bottom: 5px; }
+.opt-table td { padding: 2px 4px; vertical-align: top; font-size: 10.5pt; }
 
-    /* LAYOUT ĐỀ BÀI CÓ HÌNH BÊN PHẢI */
-    .q-content-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    .q-text-left {
-        flex: 1;
-    }
-    .q-img-right {
-        width: 150px; /* Cố định chiều rộng hình bên phải */
-        flex-shrink: 0;
-        text-align: center;
-    }
-    .q-img-right img {
-        max-width: 100%;
-        max-height: 130px;
-        object-fit: contain;
-    }
+img { max-width: 45%; max-height: 160px; display: block; margin: 6px auto; }
 
-    /* BẢNG ĐÁP ÁN CÁCH ĐỀU NHAU (CHO DÙ DÙNG 4 CỘT, 2 CỘT HAY 1 CỘT) */
-    .opt-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 4px;
-        margin-bottom: 6px;
-    }
-    .opt-table td {
-        padding: 3px 6px 3px 0;
-        vertical-align: top;
-        font-size: 10.5pt;
-    }
-
-    .tf-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-    .tf-table th, .tf-table td { border: 1px solid #000; padding: 4px; text-align: left; font-size: 10pt; }
-    .tf-table th { background: #f8fafc; text-align: center; }
-    .short-ans { display: inline-block; width: 100%; border-bottom: 1px dotted #000; margin-top: 10px
+.tf-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.tf-table th, .tf-table td { border: 1px solid #000; padding: 4px; text-align: left; font-size: 10pt; }
+.tf-table th { background: #f8fafc; text-align: center; }
+.short-ans { display: inline-block; width: 100%; border-bottom: 1px dotted #000; margin-top: 10px; height: 18px; }
